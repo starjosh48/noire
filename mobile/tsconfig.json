@@ -1,0 +1,14 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      // The app's own code.
+      "~/*": ["./src/*"],
+      // The website's code, so shared modules keep resolving their own "@/..." imports.
+      // Only import it through src/shared.ts.
+      "@/*": ["../src/*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+}

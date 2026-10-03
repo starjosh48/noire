@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* The Expo app (mobile/) styles itself; keep its source out of the website's class scan. */
+@source not "../../mobile";
+
 /* ──────────────────────────────────────────────────────────────────────────
    NOIRÉ design tokens
    Warm ivory ground, deep charcoal ink, a restrained champagne accent.

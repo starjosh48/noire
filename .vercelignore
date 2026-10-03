@@ -8,3 +8,6 @@ node_modules
 .next
 .netlify
 *.tsbuildinfo
+
+# The Expo app is built separately (EAS), never by Vercel.
+mobile
