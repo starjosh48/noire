@@ -1,0 +1,10 @@
+# Never upload local secrets, builds or dependencies to Vercel.
+.env*
+!.env.example
+supabase/.env
+supabase/.temp
+.vercel-token
+node_modules
+.next
+.netlify
+*.tsbuildinfo

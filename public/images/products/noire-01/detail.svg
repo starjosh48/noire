@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" width="1200" height="1500" role="img" aria-label="NOIRÉ 01 Santal Obscur — label detail">
+<title>NOIRÉ 01 Santal Obscur — label detail</title>
+<defs>
+    <linearGradient id="wall-36" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e3d9cb"/>
+      <stop offset="1" stop-color="#dbcebc"/>
+    </linearGradient>
+    <linearGradient id="ground-37" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d3c3af"/>
+      <stop offset="1" stop-color="#c1b19c"/>
+    </linearGradient>
+    <radialGradient id="glow-38" cx="0.28" cy="0.18" r="0.75">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    
+    <linearGradient id="edge-39" x1="0" x2="1">
+      <stop offset="0" stop-color="#998372"/>
+      <stop offset="0.08" stop-color="#d8cbc2"/>
+      <stop offset="0.5" stop-color="#ccbbaf"/>
+      <stop offset="0.92" stop-color="#d5c7bd"/>
+      <stop offset="1" stop-color="#8d7665"/>
+    </linearGradient>
+    <linearGradient id="liquid-40" x1="0" x2="1">
+      <stop offset="0" stop-color="#53351f"/>
+      <stop offset="0.18" stop-color="#7A4E2D"/>
+      <stop offset="0.46" stop-color="#926e53"/>
+      <stop offset="0.78" stop-color="#7A4E2D"/>
+      <stop offset="1" stop-color="#492f1b"/>
+    </linearGradient>
+    <linearGradient id="liquidV-41" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.22"/>
+    </linearGradient>
+    <linearGradient id="base-42" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9b7a62"/>
+      <stop offset="0.35" stop-color="#ccbcaf"/>
+      <stop offset="1" stop-color="#967c68"/>
+    </linearGradient>
+    <linearGradient id="collar-43" x1="0" x2="1">
+      <stop offset="0" stop-color="#7D6C52"/>
+      <stop offset="0.22" stop-color="#E9DCC0"/>
+      <stop offset="0.45" stop-color="#A08B68"/>
+      <stop offset="0.7" stop-color="#F3EAD6"/>
+      <stop offset="1" stop-color="#6E5E46"/>
+    </linearGradient>
+    <linearGradient id="cap-44" x1="0" x2="1">
+      <stop offset="0" stop-color="#0E0D0C"/>
+      <stop offset="0.18" stop-color="#2E2B29"/>
+      <stop offset="0.34" stop-color="#4A4643"/>
+      <stop offset="0.5" stop-color="#22201E"/>
+      <stop offset="1" stop-color="#0B0A09"/>
+    </linearGradient>
+    <linearGradient id="hl-45" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0.12" stop-color="#ffffff" stop-opacity="0.75"/>
+      <stop offset="0.85" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="clip-46"><rect x="0" y="232" width="420" height="568" rx="34"/></clipPath>
+    <filter id="blur-47" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="24"/></filter>
+    <filter id="blurSoft-48" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="62.4"/></filter>
+    <linearGradient id="fade-49" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.22"/>
+      <stop offset="0.35" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <mask id="mask-50"><rect x="86" y="1727" width="1028" height="1920" fill="url(#fade-49)"/></mask>
+    <g id="bottle-51">
+    <!-- cap -->
+    <rect x="105" y="0" width="210" height="192" rx="5" fill="url(#cap-44)"/>
+    <rect x="105" y="0" width="210" height="6" rx="3" fill="#ffffff" opacity="0.12"/>
+    <rect x="132" y="14" width="10" height="168" fill="#ffffff" opacity="0.06"/>
+    <!-- collar -->
+    <rect x="140" y="190" width="140" height="44" fill="url(#collar-43)"/>
+    <rect x="140" y="190" width="140" height="3" fill="#000" opacity="0.25"/>
+    <!-- body: thick glass walls around the juice -->
+    <rect x="0" y="232" width="420" height="568" rx="34" fill="url(#edge-39)"/>
+    <g clip-path="url(#clip-46)">
+      <rect x="20" y="278" width="380" height="438" rx="16" fill="url(#liquid-40)"/>
+      <rect x="20" y="278" width="380" height="438" rx="16" fill="url(#liquidV-41)"/>
+      <rect x="20" y="278" width="380" height="5" fill="#b69e8c" opacity="0.9"/>
+      <rect x="0" y="716" width="420" height="84" fill="url(#base-42)"/>
+      <rect x="20" y="716" width="380" height="2" fill="#5c3b22" opacity="0.5"/>
+      <rect x="30" y="252" width="22" height="532" fill="url(#hl-45)"/>
+      <rect x="64" y="262" width="56" height="510" fill="url(#hl-45)" opacity="0.18"/>
+      <rect x="388" y="256" width="7" height="520" fill="url(#hl-45)" opacity="0.55"/>
+      <rect x="0" y="232" width="420" height="4" fill="#ffffff" opacity="0.5"/>
+    </g>
+    <!-- label -->
+    <g transform="translate(70 404)">
+      <rect width="280" height="186" fill="#F5F0E8"/>
+      <rect x="8" y="8" width="264" height="170" fill="none" stroke="#1A1918" stroke-opacity="0.18" stroke-width="1"/>
+      <text x="140" y="56" text-anchor="middle" font-family="Didot, 'Bodoni 72', 'Bodoni MT', 'Times New Roman', Georgia, serif" font-size="34" letter-spacing="9" fill="#1A1918">NOIRÉ</text>
+      <rect x="122" y="74" width="36" height="1" fill="#1A1918" opacity="0.5"/>
+      <text x="140" y="118" text-anchor="middle" font-family="Didot, 'Bodoni 72', 'Bodoni MT', 'Times New Roman', Georgia, serif" font-size="34" font-style="italic" fill="#1A1918">01</text>
+      <text x="140" y="146" text-anchor="middle" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" letter-spacing="4.2" fill="#1A1918">SANTAL OBSCUR</text>
+      <text x="140" y="166" text-anchor="middle" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="8.5" letter-spacing="2.6" fill="#1A1918" opacity="0.6">EAU DE PARFUM</text>
+    </g></g></defs>
+
+    <rect width="1200" height="1500" fill="url(#wall-36)"/>
+    <rect y="1500" width="1200" height="0" fill="url(#ground-37)"/>
+    <rect width="1200" height="1500" fill="url(#glow-38)"/>
+    <polygon filter="url(#blurSoft-48)" fill="#000" opacity="0.16"
+      points="120,1727 1080,1727 1658.4,1616.6 1053.6,1602.2"/><ellipse cx="600" cy="1731.8" rx="564.48" ry="38.4" fill="#000" opacity="0.32" filter="url(#blur-47)"/><use href="#bottle-51" transform="translate(96 -193) scale(2.4)"/>
+</svg>

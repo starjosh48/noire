@@ -1,0 +1,11 @@
+# Netlify builds Next.js with its OpenNext-based runtime. Declared explicitly so it also
+# runs for uploaded (non-Git) deploys, where Netlify does not add it automatically.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

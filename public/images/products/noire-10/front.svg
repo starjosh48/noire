@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" width="1200" height="1500" role="img" aria-label="NOIRÉ 10 White Musk — Eau de Parfum flacon">
+<title>NOIRÉ 10 White Musk — Eau de Parfum flacon</title>
+<defs>
+    <linearGradient id="wall-460" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f1ede8"/>
+      <stop offset="1" stop-color="#EDE8E1"/>
+    </linearGradient>
+    <linearGradient id="ground-461" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e6e0d7"/>
+      <stop offset="1" stop-color="#d4cdc4"/>
+    </linearGradient>
+    <radialGradient id="glow-462" cx="0.28" cy="0.18" r="0.75">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    
+    <linearGradient id="edge-463" x1="0" x2="1">
+      <stop offset="0" stop-color="#cfccc6"/>
+      <stop offset="0.08" stop-color="#f7f5f2"/>
+      <stop offset="0.5" stop-color="#f5f2ee"/>
+      <stop offset="0.92" stop-color="#f7f5f1"/>
+      <stop offset="1" stop-color="#c5c2bc"/>
+    </linearGradient>
+    <linearGradient id="liquid-464" x1="0" x2="1">
+      <stop offset="0" stop-color="#9b968f"/>
+      <stop offset="0.18" stop-color="#E4DDD2"/>
+      <stop offset="0.46" stop-color="#e9e3da"/>
+      <stop offset="0.78" stop-color="#E4DDD2"/>
+      <stop offset="1" stop-color="#89857e"/>
+    </linearGradient>
+    <linearGradient id="liquidV-465" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.22"/>
+    </linearGradient>
+    <linearGradient id="base-466" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ebe6dd"/>
+      <stop offset="0.35" stop-color="#f5f2ee"/>
+      <stop offset="1" stop-color="#d7d3cc"/>
+    </linearGradient>
+    <linearGradient id="collar-467" x1="0" x2="1">
+      <stop offset="0" stop-color="#7D6C52"/>
+      <stop offset="0.22" stop-color="#E9DCC0"/>
+      <stop offset="0.45" stop-color="#A08B68"/>
+      <stop offset="0.7" stop-color="#F3EAD6"/>
+      <stop offset="1" stop-color="#6E5E46"/>
+    </linearGradient>
+    <linearGradient id="cap-468" x1="0" x2="1">
+      <stop offset="0" stop-color="#0E0D0C"/>
+      <stop offset="0.18" stop-color="#2E2B29"/>
+      <stop offset="0.34" stop-color="#4A4643"/>
+      <stop offset="0.5" stop-color="#22201E"/>
+      <stop offset="1" stop-color="#0B0A09"/>
+    </linearGradient>
+    <linearGradient id="hl-469" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0.12" stop-color="#ffffff" stop-opacity="0.75"/>
+      <stop offset="0.85" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="clip-470"><rect x="0" y="232" width="420" height="568" rx="34"/></clipPath>
+    <filter id="blur-471" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="10.4"/></filter>
+    <filter id="blurSoft-472" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="27.04"/></filter>
+    <linearGradient id="fade-473" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.22"/>
+      <stop offset="0.35" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <mask id="mask-474"><rect x="371.6" y="1250" width="456.8" height="832" fill="url(#fade-473)"/></mask>
+    <g id="bottle-475">
+    <!-- cap -->
+    <rect x="105" y="0" width="210" height="192" rx="5" fill="url(#cap-468)"/>
+    <rect x="105" y="0" width="210" height="6" rx="3" fill="#ffffff" opacity="0.12"/>
+    <rect x="132" y="14" width="10" height="168" fill="#ffffff" opacity="0.06"/>
+    <!-- collar -->
+    <rect x="140" y="190" width="140" height="44" fill="url(#collar-467)"/>
+    <rect x="140" y="190" width="140" height="3" fill="#000" opacity="0.25"/>
+    <!-- body: thick glass walls around the juice -->
+    <rect x="0" y="232" width="420" height="568" rx="34" fill="url(#edge-463)"/>
+    <g clip-path="url(#clip-470)">
+      <rect x="20" y="278" width="380" height="438" rx="16" fill="url(#liquid-464)"/>
+      <rect x="20" y="278" width="380" height="438" rx="16" fill="url(#liquidV-465)"/>
+      <rect x="20" y="278" width="380" height="5" fill="#f0ece6" opacity="0.9"/>
+      <rect x="0" y="716" width="420" height="84" fill="url(#base-466)"/>
+      <rect x="20" y="716" width="380" height="2" fill="#aba69e" opacity="0.5"/>
+      <rect x="30" y="252" width="22" height="532" fill="url(#hl-469)"/>
+      <rect x="64" y="262" width="56" height="510" fill="url(#hl-469)" opacity="0.18"/>
+      <rect x="388" y="256" width="7" height="520" fill="url(#hl-469)" opacity="0.55"/>
+      <rect x="0" y="232" width="420" height="4" fill="#ffffff" opacity="0.5"/>
+    </g>
+    <!-- label -->
+    <g transform="translate(70 404)">
+      <rect width="280" height="186" fill="#F5F0E8"/>
+      <rect x="8" y="8" width="264" height="170" fill="none" stroke="#1A1918" stroke-opacity="0.18" stroke-width="1"/>
+      <text x="140" y="56" text-anchor="middle" font-family="Didot, 'Bodoni 72', 'Bodoni MT', 'Times New Roman', Georgia, serif" font-size="34" letter-spacing="9" fill="#1A1918">NOIRÉ</text>
+      <rect x="122" y="74" width="36" height="1" fill="#1A1918" opacity="0.5"/>
+      <text x="140" y="118" text-anchor="middle" font-family="Didot, 'Bodoni 72', 'Bodoni MT', 'Times New Roman', Georgia, serif" font-size="34" font-style="italic" fill="#1A1918">10</text>
+      <text x="140" y="146" text-anchor="middle" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" letter-spacing="4.2" fill="#1A1918">WHITE MUSK</text>
+      <text x="140" y="166" text-anchor="middle" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="8.5" letter-spacing="2.6" fill="#1A1918" opacity="0.6">EAU DE PARFUM</text>
+    </g></g></defs>
+
+    <rect width="1200" height="1500" fill="url(#wall-460)"/>
+    <rect y="1180" width="1200" height="320" fill="url(#ground-461)"/>
+    <rect width="1200" height="1500" fill="url(#glow-462)"/>
+    <polygon filter="url(#blurSoft-472)" fill="#000" opacity="0.16"
+      points="392,1250 808.0000000000001,1250 1058.64,1202.16 796.56,1195.92"/><ellipse cx="783.456" cy="1268.72" rx="218.4" ry="27.04" fill="#E4DDD2" opacity="0.32" filter="url(#blurSoft-472)"/><ellipse cx="600" cy="1252.08" rx="244.60800000000003" ry="16.64" fill="#000" opacity="0.32" filter="url(#blur-471)"/><g mask="url(#mask-474)"><use href="#bottle-475" transform="translate(381.6 2082) scale(1.04 -1.04) translate(0 0)"/></g><use href="#bottle-475" transform="translate(381.6 418) scale(1.04)"/>
+</svg>

@@ -1,0 +1,358 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────────────────────────────────
+   NOIRÉ design tokens
+   Warm ivory ground, deep charcoal ink, a restrained champagne accent.
+   ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-ivory: #f7f3ed;
+  --color-paper: #fbf9f5;
+  --color-stone: #efe8de;
+  --color-sand: #e2d8ca;
+  --color-line: #ddd3c5;
+  --color-ink: #1a1918;
+  --color-ink-soft: #3a3734;
+  --color-muted: #5f5850;
+  --color-faint: #6f675e;
+  --color-champagne: #b39c7d;
+  --color-champagne-deep: #7d6a50;
+  --color-danger: #9b2c2c;
+  --color-danger-soft: #f6e7e4;
+  --color-success: #3d5a43;
+  --color-success-soft: #e7eee6;
+  /* Fixed, theme-independent tones for text and overlays on photography. */
+  --color-night: #1a1918;
+  --color-cream: #f7f3ed;
+
+  --font-serif: var(--font-instrument-serif), "Times New Roman", Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--letter-spacing: 0.18em;
+  --text-eyebrow--line-height: 1rem;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --animate-rise: rise 0.9s var(--ease-out-soft) both;
+  --animate-fade: fade 0.6s var(--ease-out-soft) both;
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  --animate-pop: pop 0.45s var(--ease-out-soft);
+  --animate-pop-in: pop-in 0.28s var(--ease-out-soft);
+  --animate-page: page 0.5s var(--ease-out-soft) backwards; /* not "both": a lingering transform would break position:fixed inside pages */
+  --animate-check: check 0.45s var(--ease-out-soft) both;
+
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes page {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes check {
+    from {
+      opacity: 0;
+      transform: scale(0.4) rotate(-12deg);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) rotate(0);
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes shimmer {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes pop {
+    0% {
+      transform: scale(1);
+    }
+    40% {
+      transform: scale(1.35);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+}
+
+/* Page gutter + max width. */
+@utility shell {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 2rem;
+  }
+
+  @media (width >= 80rem) {
+    padding-inline: 3.5rem;
+  }
+}
+
+/* Small uppercase label used for metadata, categories and section markers. */
+@utility eyebrow {
+  font-size: var(--text-eyebrow);
+  line-height: var(--text-eyebrow--line-height);
+  letter-spacing: var(--text-eyebrow--letter-spacing);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Editorial display type. */
+@utility display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+/* Underline that draws in on hover — for text links. */
+@utility link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.4s var(--ease-out-soft);
+  padding-bottom: 2px;
+
+  &:hover {
+    background-size: 0% 1px;
+    background-position: 100% 100%;
+  }
+}
+
+/* Grows a small text link's touch area without changing how it looks. */
+@utility tap-target {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -8px -6px;
+  }
+}
+
+@utility link-reveal {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.4s var(--ease-out-soft);
+  padding-bottom: 2px;
+
+  &:hover,
+  &[aria-current="page"] {
+    background-size: 100% 1px;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-ivory);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-ivory);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  dialog {
+    color: inherit;
+  }
+
+  dialog::backdrop {
+    background-color: rgb(26 25 24 / 0);
+    transition:
+      background-color 0.45s var(--ease-out-soft),
+      overlay 0.45s allow-discrete,
+      display 0.45s allow-discrete;
+  }
+
+  dialog[open]::backdrop {
+    background-color: rgb(26 25 24 / 0.38);
+  }
+
+  @starting-style {
+    dialog[open]::backdrop {
+      background-color: rgb(26 25 24 / 0);
+    }
+  }
+
+  /* Search fields have their own controls; drop the browser's clear button and decorations. */
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* Hide number input spinners; quantity uses explicit controls. */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Dark mode: warm charcoal, never pure black. Light is the default; dark applies
+   only when the visitor chooses it (html[data-theme="dark"], remembered locally).
+   ────────────────────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-ivory: #141312;
+  --color-paper: #1c1a19;
+  --color-stone: #252321;
+  --color-sand: #3d3934;
+  --color-line: #302d2a;
+  --color-ink: #f1ece4;
+  --color-ink-soft: #d9d2c7;
+  --color-muted: #a59c91;
+  --color-faint: #958c81;
+  --color-champagne: #c4ad8c;
+  --color-champagne-deep: #d6bf99;
+  --color-danger: #ec948a;
+  --color-danger-soft: #2d1b18;
+  --color-success: #94bd9d;
+  --color-success-soft: #18231b;
+}
+
+/* Studio photography stays light; soften it slightly on dark backgrounds. */
+:root[data-theme="dark"] main img {
+  filter: brightness(0.9) saturate(0.95);
+}
+
+/* Smooth colour change while the theme is being switched (class removed right after). */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition:
+    background-color 0.4s var(--ease-out-soft),
+    color 0.4s var(--ease-out-soft),
+    border-color 0.4s var(--ease-out-soft),
+    fill 0.4s var(--ease-out-soft) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Motion details
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Arrows inside text links nudge forward on hover. */
+.link-underline svg,
+.link-reveal svg {
+  transition: translate 0.35s var(--ease-out-soft);
+}
+
+.link-underline:hover svg,
+.link-reveal:hover svg {
+  translate: 3px 0;
+}
+
+/* Scroll reveal: elements fade up once as they enter the viewport. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.8s var(--ease-out-soft),
+    transform 0.8s var(--ease-out-soft);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-reveal="visible"] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
