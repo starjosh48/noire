@@ -3,16 +3,13 @@ import { Image } from "expo-image";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSearch } from "~/api/catalog";
 import { EmptyState, ErrorState, LoadingState } from "~/components/states";
-import { Display } from "~/components/typography";
 import { formatPrice, imageUrl } from "~/lib/format";
 import { familyLine } from "~/shared";
 import { colors, fonts, gutter } from "~/theme";
 
 export default function SearchScreen() {
-  const insets = useSafeAreaInsets();
   const [text, setText] = useState("");
   const [term, setTerm] = useState("");
 
@@ -26,10 +23,7 @@ export default function SearchScreen() {
   const ready = term.trim().length >= 2;
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top + 20 }]}>
-      <Display size={42} style={styles.padded}>
-        Search
-      </Display>
+    <View style={styles.screen}>
       <View style={styles.field}>
         <Feather name="search" size={18} color={colors.muted} />
         <TextInput
@@ -39,6 +33,7 @@ export default function SearchScreen() {
           placeholderTextColor={colors.faint}
           style={styles.input}
           returnKeyType="search"
+          autoFocus
           autoCorrect={false}
           autoCapitalize="none"
           clearButtonMode="while-editing"
@@ -88,7 +83,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     marginHorizontal: gutter,
-    marginTop: 18,
+    marginTop: 8,
     marginBottom: 12,
     paddingHorizontal: 14,
     height: 50,

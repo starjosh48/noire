@@ -2,6 +2,8 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    // TypeScript 6 no longer loads @types packages automatically; Jest globals for the tests.
+    "types": ["jest"],
     "paths": {
       // The app's own code.
       "~/*": ["./src/*"],

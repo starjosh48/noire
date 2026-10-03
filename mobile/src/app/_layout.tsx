@@ -3,14 +3,20 @@ import { InstrumentSerif_400Regular } from "@expo-google-fonts/instrument-serif/
 import { InstrumentSerif_400Regular_Italic } from "@expo-google-fonts/instrument-serif/400Regular_Italic";
 import { Inter_400Regular } from "@expo-google-fonts/inter/400Regular";
 import { Inter_500Medium } from "@expo-google-fonts/inter/500Medium";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
+import { AuthProvider, useAuth } from "~/auth/auth-provider";
+import { useCartRealtime } from "~/cart/cart";
+import { OfflineBanner } from "~/components/offline-banner";
+import { ToastProvider } from "~/components/toast";
+import { createQueryClient } from "~/lib/query";
 import { colors, fonts } from "~/theme";
 
-// Keep the splash screen up until the brand fonts are ready, so text never flashes in a system font.
+// Keep the splash screen up until the brand fonts and the saved session are ready, so nothing
+// flashes in a system font or as "signed out".
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -20,18 +26,32 @@ export default function RootLayout() {
     Inter_400Regular,
     Inter_500Medium,
   });
-  const [queryClient] = useState(
-    () => new QueryClient({ defaultOptions: { queries: { staleTime: 60_000, retry: 1 } } }),
-  );
+  const [queryClient] = useState(createQueryClient);
 
-  const ready = fontsLoaded || !!fontError;
+  if (!fontsLoaded && !fontError) return null;
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ToastProvider>
+          <App />
+        </ToastProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+}
+
+function App() {
+  const { ready } = useAuth();
+  useCartRealtime();
+
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
   if (!ready) return null;
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
@@ -43,9 +63,17 @@ export default function RootLayout() {
           headerBackButtonDisplayMode: "minimal",
         }}
       >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false, title: "" }} />
         <Stack.Screen name="product/[slug]" options={{ title: "" }} />
+        <Stack.Screen name="search" options={{ title: "Search" }} />
+        <Stack.Screen name="checkout" options={{ title: "Checkout" }} />
+        <Stack.Screen name="order/[orderNumber]" options={{ title: "Order" }} />
+        <Stack.Screen name="orders" options={{ title: "Your orders" }} />
+        <Stack.Screen name="sign-in" options={{ title: "", presentation: "modal" }} />
+        <Stack.Screen name="auth/callback" options={{ headerShown: false }} />
+        <Stack.Screen name="payment-return" options={{ headerShown: false }} />
       </Stack>
-    </QueryClientProvider>
+      <OfflineBanner />
+    </>
   );
 }

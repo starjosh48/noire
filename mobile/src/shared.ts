@@ -22,3 +22,7 @@ export { formatDate, formatPrice as formatPriceIntl, pluralize, productLabel, fi
 export { artwork } from "@/lib/images";
 // Checkout validation is the website's own schema, so the app checks exactly what the server checks.
 export { checkoutSchema, nigerianStates, shippingCountries, type CheckoutInput } from "@/lib/validation/checkout";
+export { orderStatusLabel, orderTimeline } from "@/lib/orders/status";
+export { paymentMethodLabel } from "@/lib/payments";
+export { greeting } from "@/lib/format";
+export type { Database } from "@/types/database";

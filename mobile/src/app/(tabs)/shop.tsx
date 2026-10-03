@@ -1,10 +1,12 @@
+import Feather from "@expo/vector-icons/Feather";
 import { router, useLocalSearchParams } from "expo-router";
-import { FlatList, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useProducts } from "~/api/catalog";
 import { Chip } from "~/components/chip";
 import { ProductCard } from "~/components/product-card";
-import { EmptyState, ErrorState, LoadingState } from "~/components/states";
+import { ProductGridSkeleton } from "~/components/skeleton";
+import { EmptyState, ErrorState } from "~/components/states";
 import { Body, Display, Eyebrow } from "~/components/typography";
 import { pluralize } from "~/lib/format";
 import { families, moodBySlug, sortOptions, type SortKey } from "~/shared";
@@ -49,6 +51,15 @@ export default function ShopScreen() {
         <Body muted style={{ marginTop: 10 }}>
           {heading.description}
         </Body>
+        <Pressable
+          accessibilityRole="search"
+          accessibilityLabel="Search fragrances, notes and moods"
+          onPress={() => router.push("/search")}
+          style={({ pressed }) => [styles.search, pressed && { backgroundColor: colors.stone }]}
+        >
+          <Feather name="search" size={18} color={colors.muted} />
+          <Text style={styles.searchText}>Search by name, note or mood</Text>
+        </Pressable>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
@@ -92,7 +103,7 @@ export default function ShopScreen() {
       renderItem={({ item }) => <ProductCard product={item} width={cardWidth} />}
       ListEmptyComponent={
         products.isPending ? (
-          <LoadingState />
+          <ProductGridSkeleton />
         ) : products.isError ? (
           <ErrorState message={products.error.message} onRetry={products.refetch} />
         ) : (
@@ -109,6 +120,8 @@ export default function ShopScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.ivory },
   padded: { paddingHorizontal: gutter },
+  search: { flexDirection: "row", alignItems: "center", gap: 10, height: 48, paddingHorizontal: 14, marginTop: 20, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paper },
+  searchText: { fontFamily: fonts.sans, fontSize: 15, color: colors.faint },
   chips: { gap: 8, paddingHorizontal: gutter, paddingVertical: 12 },
   count: {
     fontFamily: fonts.sans,

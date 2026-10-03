@@ -46,3 +46,17 @@ export function useSearch(term: string) {
     placeholderData: keepPreviousData,
   });
 }
+
+/** The scent finder: characters (scent profiles) and moments (moods), as on the website. */
+export function useDiscover(scents: string[], moments: string[]) {
+  const params = new URLSearchParams();
+  if (scents.length) params.set("scent", scents.join(","));
+  if (moments.length) params.set("mood", moments.join(","));
+  const search = params.toString();
+  return useQuery({
+    queryKey: ["catalog", "discover", search],
+    queryFn: () => apiFetch<{ results: ProductSummary[] }>(`/catalog/discover?${search}`),
+    enabled: search.length > 0,
+    placeholderData: keepPreviousData,
+  });
+}

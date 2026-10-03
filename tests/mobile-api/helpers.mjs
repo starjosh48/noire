@@ -142,8 +142,9 @@ export async function watchCart(listener, ownerId) {
       else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") reject(new Error(`Realtime ${status}`));
     });
   });
-  // Realtime needs a moment after SUBSCRIBED before changes are routed to a new channel.
-  await sleep(500);
+  // Realtime needs a moment after SUBSCRIBED before it routes changes to a new subscription
+  // (the apps cover this gap by refetching the cart as soon as they subscribe).
+  await sleep(2000);
 
   return {
     events,
