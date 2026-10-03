@@ -1,44 +1,41 @@
-import Feather from "@expo/vector-icons/Feather";
-import { Tabs } from "expo-router";
-import type { ColorValue } from "react-native";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
+import { Platform } from "react-native";
 import { useCartCount } from "~/cart/cart";
-import { colors, fonts } from "~/theme";
+import { useColors } from "~/theme";
 
-type IconName = React.ComponentProps<typeof Feather>["name"];
-
-function icon(name: IconName) {
-  return function TabIcon({ color, size }: { color: ColorValue; size: number }) {
-    return <Feather name={name} color={color} size={size - 2} />;
-  };
-}
-
+/** The system tab bar (iOS and Android), with the cart count as a native badge. */
 export default function TabsLayout() {
   const count = useCartCount();
+  const c = useColors();
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        sceneStyle: { backgroundColor: colors.ivory },
-        tabBarActiveTintColor: colors.ink,
-        tabBarInactiveTintColor: colors.faint,
-        tabBarStyle: { backgroundColor: colors.ivory, borderTopColor: colors.line },
-        tabBarLabelStyle: { fontFamily: fonts.sansMedium, fontSize: 10, letterSpacing: 1, textTransform: "uppercase" },
-      }}
+    <NativeTabs
+      tintColor={c.ink}
+      iconColor={{ default: c.faint, selected: c.ink }}
+      backgroundColor={Platform.OS === "android" ? c.ivory : undefined}
+      badgeBackgroundColor={c.ink}
+      labelVisibilityMode="labeled"
     >
-      <Tabs.Screen name="index" options={{ title: "Home", tabBarIcon: icon("home") }} />
-      <Tabs.Screen name="shop" options={{ title: "Shop", tabBarIcon: icon("grid") }} />
-      <Tabs.Screen name="discover" options={{ title: "Discover", tabBarIcon: icon("compass") }} />
-      <Tabs.Screen
-        name="cart"
-        options={{
-          title: "Cart",
-          tabBarIcon: icon("shopping-bag"),
-          tabBarBadge: count > 0 ? count : undefined,
-          tabBarBadgeStyle: { backgroundColor: colors.ink, color: colors.ivory, fontFamily: fonts.sansMedium, fontSize: 10 },
-          tabBarAccessibilityLabel: count > 0 ? `Cart, ${count} ${count === 1 ? "item" : "items"}` : "Cart, empty",
-        }}
-      />
-      <Tabs.Screen name="account" options={{ title: "Account", tabBarIcon: icon("user") }} />
-    </Tabs>
+      <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger.Icon sf={{ default: "sparkles", selected: "sparkles" }} md="auto_awesome" />
+        <NativeTabs.Trigger.Label>Lookbook</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="shop">
+        <NativeTabs.Trigger.Icon sf={{ default: "square.grid.2x2", selected: "square.grid.2x2.fill" }} md="grid_view" />
+        <NativeTabs.Trigger.Label>Shop</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="discover">
+        <NativeTabs.Trigger.Icon sf={{ default: "wand.and.stars", selected: "wand.and.stars" }} md="explore" />
+        <NativeTabs.Trigger.Label>Discover</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="cart">
+        <NativeTabs.Trigger.Icon sf={{ default: "bag", selected: "bag.fill" }} md="shopping_bag" />
+        <NativeTabs.Trigger.Label>Cart</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Badge hidden={count === 0}>{String(count)}</NativeTabs.Trigger.Badge>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="account">
+        <NativeTabs.Trigger.Icon sf={{ default: "person", selected: "person.fill" }} md="person" />
+        <NativeTabs.Trigger.Label>Account</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

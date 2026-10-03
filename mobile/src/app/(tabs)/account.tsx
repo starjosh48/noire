@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
 import { useOrders, useProfile, useSaveProfile } from "~/api/account";
 import { useAuth } from "~/auth/auth-provider";
+import { useTabBarInset } from "~/lib/layout";
 import { Button } from "~/components/button";
 import { OrderRow } from "~/components/order-row";
 import { RowsSkeleton } from "~/components/skeleton";
@@ -15,7 +16,7 @@ import { TextField } from "~/components/text-field";
 import { useToast } from "~/components/toast";
 import { Body, Display, Eyebrow } from "~/components/typography";
 import { firstName, greeting } from "~/shared";
-import { colors, fonts, gutter } from "~/theme";
+import { fonts, gutter, makeStyles, useColors } from "~/theme";
 
 // The website's profile rules (src/lib/account/service.ts).
 const profileSchema = z.object({
@@ -33,10 +34,12 @@ export default function AccountScreen() {
 }
 
 function SignedOut() {
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
+  const bottom = useTabBarInset();
   const { expired } = useAuth();
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={[styles.padded, { paddingTop: insets.top + 20, paddingBottom: 48 }]}>
+    <ScrollView style={styles.screen} contentContainerStyle={[styles.padded, { paddingTop: insets.top + 20, paddingBottom: bottom + 32 }]}>
       <Eyebrow>Your NOIRÉ account</Eyebrow>
       <Display size={42} style={{ marginTop: 10 }}>
         Account
@@ -59,7 +62,10 @@ function SignedOut() {
 }
 
 function SignedIn() {
+  const styles = useStyles();
+  const colors = useColors();
   const insets = useSafeAreaInsets();
+  const bottom = useTabBarInset();
   const { session, signOut } = useAuth();
   const profile = useProfile();
   const orders = useOrders();
@@ -74,7 +80,7 @@ function SignedIn() {
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={{ paddingTop: insets.top + 20, paddingBottom: 56 }}
+      contentContainerStyle={{ paddingTop: insets.top + 20, paddingBottom: bottom + 40 }}
       refreshControl={
         <RefreshControl
           refreshing={profile.isRefetching || orders.isRefetching}
@@ -187,6 +193,7 @@ function ProfileForm({ fullName, phone }: { fullName: string | null; phone: stri
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const styles = useStyles();
   return (
     <View style={styles.section}>
       <Display size={26} style={[styles.padded, { marginBottom: 8 }]}>
@@ -197,10 +204,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   screen: { flex: 1, backgroundColor: colors.ivory },
   padded: { paddingHorizontal: gutter },
   section: { marginTop: 36, paddingTop: 24, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line },
-  notice: { fontFamily: fonts.sans, fontSize: 14, color: colors.ink, backgroundColor: colors.stone, padding: 14, marginTop: 20 },
+  notice: { fontFamily: fonts.sans, fontSize: 14, color: colors.ink, backgroundColor: colors.stone, padding: 14, marginTop: 20, borderRadius: 14, overflow: "hidden" },
   link: { fontFamily: fonts.sansMedium, fontSize: 12, letterSpacing: 1.4, textTransform: "uppercase", color: colors.ink, textDecorationLine: "underline", marginTop: 12 },
-});
+}));

@@ -3,9 +3,11 @@ import { useOrders } from "~/api/account";
 import { OrderRow } from "~/components/order-row";
 import { RowsSkeleton } from "~/components/skeleton";
 import { EmptyState, ErrorState } from "~/components/states";
-import { colors, gutter } from "~/theme";
+import { gutter, makeStyles, useColors } from "~/theme";
 
 export default function OrdersScreen() {
+  const styles = useStyles();
+  const colors = useColors();
   const orders = useOrders();
   if (orders.isPending) return <RowsSkeleton count={4} />;
   if (orders.isError) return <ErrorState message={orders.error.message} onRetry={orders.refetch} />;
@@ -23,6 +25,6 @@ export default function OrdersScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   separator: { height: StyleSheet.hairlineWidth, backgroundColor: colors.line, marginHorizontal: gutter },
-});
+}));

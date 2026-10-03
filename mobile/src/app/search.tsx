@@ -2,14 +2,16 @@ import Feather from "@expo/vector-icons/Feather";
 import { Image } from "expo-image";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { FlatList, Pressable, Text, TextInput, View } from "react-native";
 import { useSearch } from "~/api/catalog";
 import { EmptyState, ErrorState, LoadingState } from "~/components/states";
 import { formatPrice, imageUrl } from "~/lib/format";
 import { familyLine } from "~/shared";
-import { colors, fonts, gutter } from "~/theme";
+import { fonts, gutter, makeStyles, useColors } from "~/theme";
 
 export default function SearchScreen() {
+  const styles = useStyles();
+  const colors = useColors();
   const [text, setText] = useState("");
   const [term, setTerm] = useState("");
 
@@ -75,7 +77,7 @@ export default function SearchScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   screen: { flex: 1, backgroundColor: colors.ivory },
   padded: { paddingHorizontal: gutter },
   field: {
@@ -85,15 +87,14 @@ const styles = StyleSheet.create({
     marginHorizontal: gutter,
     marginTop: 8,
     marginBottom: 12,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     height: 50,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.paper,
+    borderRadius: 999,
+    backgroundColor: colors.stone,
   },
   input: { flex: 1, fontFamily: fonts.sans, fontSize: 16, color: colors.ink },
   row: { flexDirection: "row", gap: 16, alignItems: "center", paddingHorizontal: gutter, paddingVertical: 12 },
-  thumb: { width: 64, height: 80, backgroundColor: colors.stone },
+  thumb: { width: 64, height: 80, borderRadius: 12, backgroundColor: colors.stone },
   name: { fontFamily: fonts.serif, fontSize: 21, color: colors.ink },
   family: {
     fontFamily: fonts.sans,
@@ -104,4 +105,4 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   price: { fontFamily: fonts.sans, fontSize: 13, color: colors.ink, marginTop: 6 },
-});
+}));

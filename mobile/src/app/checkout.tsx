@@ -20,7 +20,7 @@ import { TextField } from "~/components/text-field";
 import { Body, Display } from "~/components/typography";
 import { formatPrice } from "~/lib/format";
 import { checkoutSchema, nigerianStates, type CheckoutInput, type PaymentMethodId } from "~/shared";
-import { colors, fonts, gutter } from "~/theme";
+import { fonts, gutter, makeStyles, useColors } from "~/theme";
 
 const paymentNotices = {
   failed: "Your payment didn't go through, so nothing was charged. Your cart is just as you left it. Please try again, or choose pay on delivery.",
@@ -56,6 +56,8 @@ function CheckoutForm({
   methods: { id: PaymentMethodId; label: string; description: string }[];
   testMode: boolean;
 }) {
+  const styles = useStyles();
+  const colors = useColors();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const cart = useCart();
@@ -246,6 +248,7 @@ function Field({ form, name, ...props }: Omit<FieldProps, "value" | "onChangeTex
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const styles = useStyles();
   return (
     <View style={styles.section}>
       <Display size={26}>{title}</Display>
@@ -255,6 +258,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function Total({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  const styles = useStyles();
   return (
     <View style={styles.summaryLine}>
       <Text style={[styles.totalLabel, strong && styles.strong]}>{label}</Text>
@@ -263,14 +267,14 @@ function Total({ label, value, strong }: { label: string; value: string; strong?
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   screen: { flex: 1, backgroundColor: colors.ivory },
-  notice: { fontFamily: fonts.sans, fontSize: 14, lineHeight: 20, color: colors.danger, backgroundColor: colors.dangerSoft, padding: 14, marginHorizontal: gutter, marginTop: 12 },
+  notice: { fontFamily: fonts.sans, fontSize: 14, lineHeight: 20, color: colors.danger, backgroundColor: colors.dangerSoft, padding: 14, marginHorizontal: gutter, marginTop: 12, borderRadius: 14, overflow: "hidden" },
   section: { paddingHorizontal: gutter, paddingTop: 28, marginTop: 8 },
   label: { fontFamily: fonts.sansMedium, fontSize: 11, letterSpacing: 1.6, textTransform: "uppercase", color: colors.muted, marginBottom: 8 },
   static: { fontFamily: fonts.sans, fontSize: 16, color: colors.ink },
   hint: { fontFamily: fonts.sans, fontSize: 12, color: colors.faint, marginTop: 6 },
-  method: { flexDirection: "row", gap: 14, padding: 16, marginTop: 12, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paper },
+  method: { flexDirection: "row", gap: 14, padding: 16, marginTop: 12, borderRadius: 18, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paper },
   radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: colors.muted, marginTop: 2 },
   radioOn: { borderColor: colors.ink, borderWidth: 6 },
   methodLabel: { fontFamily: fonts.sansMedium, fontSize: 15, color: colors.ink },
@@ -282,4 +286,4 @@ const styles = StyleSheet.create({
   strong: { fontFamily: fonts.sansMedium, fontSize: 17, color: colors.ink },
   rule: { height: StyleSheet.hairlineWidth, backgroundColor: colors.line, marginTop: 16, marginBottom: 6 },
   bar: { paddingHorizontal: gutter, paddingTop: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line, backgroundColor: colors.ivory },
-});
+}));

@@ -1,13 +1,15 @@
 import { Image } from "expo-image";
 import { Link } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import type { OrderListItem } from "~/api/account";
 import { formatPrice, imageUrl, pluralize } from "~/lib/format";
 import { formatDate } from "~/shared";
-import { colors, fonts, gutter } from "~/theme";
+import { fonts, gutter, makeStyles, useColors } from "~/theme";
 import { OrderStatusBadge } from "./order-status";
 
 export function OrderRow({ order }: { order: OrderListItem }) {
+  const styles = useStyles();
+  const colors = useColors();
   const count = order.items.reduce((n, item) => n + item.quantity, 0);
   const names = order.items.map((item) => item.product_name).join(", ");
   return (
@@ -36,12 +38,12 @@ export function OrderRow({ order }: { order: OrderListItem }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   row: { flexDirection: "row", gap: 16, paddingHorizontal: gutter, paddingVertical: 14 },
-  thumb: { width: 64, height: 80, backgroundColor: colors.stone },
+  thumb: { width: 64, height: 80, borderRadius: 10, backgroundColor: colors.stone },
   number: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.ink, fontVariant: ["tabular-nums"] },
   meta: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3 },
   names: { fontFamily: fonts.serif, fontSize: 17, color: colors.ink, marginTop: 4 },
   bottom: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 8 },
   total: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.ink, fontVariant: ["tabular-nums"] },
-});
+}));

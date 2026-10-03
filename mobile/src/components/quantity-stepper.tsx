@@ -1,7 +1,7 @@
 import Feather from "@expo/vector-icons/Feather";
 import * as Haptics from "expo-haptics";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, fonts } from "~/theme";
+import { Pressable, Text, View } from "react-native";
+import { fonts, makeStyles, useColors } from "~/theme";
 
 type Props = {
   value: number;
@@ -13,6 +13,8 @@ type Props = {
 };
 
 export function QuantityStepper({ value, min = 1, max, onChange, label, disabled }: Props) {
+  const colors = useColors();
+  const styles = useStyles();
   const step = (next: number) => {
     if (next < min || next > max || disabled) return;
     void Haptics.selectionAsync();
@@ -39,15 +41,16 @@ export function QuantityStepper({ value, min = 1, max, onChange, label, disabled
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   wrap: {
     flexDirection: "row",
     alignItems: "center",
+    borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.paper,
+    borderColor: c.line,
+    backgroundColor: c.paper,
     alignSelf: "flex-start",
   },
   button: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
-  value: { minWidth: 28, textAlign: "center", fontFamily: fonts.sansMedium, fontSize: 15, color: colors.ink, fontVariant: ["tabular-nums"] },
-});
+  value: { minWidth: 24, textAlign: "center", fontFamily: fonts.sansMedium, fontSize: 15, color: c.ink, fontVariant: ["tabular-nums"] },
+}));

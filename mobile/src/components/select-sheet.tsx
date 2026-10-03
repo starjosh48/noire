@@ -1,8 +1,8 @@
 import Feather from "@expo/vector-icons/Feather";
 import { useState } from "react";
-import { FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { FlatList, Modal, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, fonts, gutter } from "~/theme";
+import { fonts, gutter, makeStyles, useColors } from "~/theme";
 
 type Props = {
   label: string;
@@ -15,6 +15,8 @@ type Props = {
 
 /** A form field that opens a bottom sheet of choices (e.g. the 37 Nigerian states). */
 export function SelectSheet({ label, value, options, onChange, error, placeholder = "Choose…" }: Props) {
+  const styles = useStyles();
+  const colors = useColors();
   const [open, setOpen] = useState(false);
   const insets = useSafeAreaInsets();
   return (
@@ -66,7 +68,7 @@ export function SelectSheet({ label, value, options, onChange, error, placeholde
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   label: { fontFamily: fonts.sansMedium, fontSize: 11, letterSpacing: 1.6, textTransform: "uppercase", color: colors.muted, marginBottom: 8 },
   field: {
     minHeight: 50,
@@ -74,6 +76,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.line,
     backgroundColor: colors.paper,
@@ -81,9 +84,9 @@ const styles = StyleSheet.create({
   value: { fontFamily: fonts.sans, fontSize: 16, color: colors.ink },
   error: { fontFamily: fonts.sans, fontSize: 13, color: colors.danger, marginTop: 6 },
   backdrop: { flex: 1, backgroundColor: "rgba(26, 25, 24, 0.38)" },
-  sheet: { maxHeight: "70%", backgroundColor: colors.ivory, paddingTop: 10 },
+  sheet: { maxHeight: "70%", backgroundColor: colors.ivory, paddingTop: 10, borderTopLeftRadius: 24, borderTopRightRadius: 24 },
   handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: colors.sand, alignSelf: "center" },
   sheetTitle: { fontFamily: fonts.serif, fontSize: 24, color: colors.ink, paddingHorizontal: gutter, paddingVertical: 14 },
   option: { height: 52, paddingHorizontal: gutter, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   optionText: { fontFamily: fonts.sans, fontSize: 16, color: colors.ink },
-});
+}));

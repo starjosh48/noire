@@ -1,45 +1,48 @@
-import { Pressable, StyleSheet, Text, type PressableProps } from "react-native";
-import { colors, fonts } from "~/theme";
+import * as Haptics from "expo-haptics";
+import { Pressable, Text, type PressableProps } from "react-native";
+import { fonts, makeStyles, onImage } from "~/theme";
 
 type ButtonProps = Omit<PressableProps, "children"> & {
   label: string;
-  variant?: "primary" | "secondary";
+  /** primary: ink fill · secondary: outline · light: cream fill for use over photography */
+  variant?: "primary" | "secondary" | "light";
+  size?: "regular" | "compact";
 };
 
-export function Button({ label, variant = "primary", disabled, style, ...props }: ButtonProps) {
-  const secondary = variant === "secondary";
+export function Button({ label, variant = "primary", size = "regular", disabled, style, onPress, ...props }: ButtonProps) {
+  const styles = useStyles();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
+      onPress={(e) => {
+        void Haptics.selectionAsync();
+        onPress?.(e);
+      }}
       style={(state) => [
         styles.base,
-        secondary ? styles.secondary : styles.primary,
-        state.pressed && { opacity: 0.8 },
+        size === "compact" && styles.compact,
+        styles[variant],
+        state.pressed && { opacity: 0.82, transform: [{ scale: 0.985 }] },
         disabled && { opacity: 0.45 },
         typeof style === "function" ? style(state) : style,
       ]}
       {...props}
     >
-      <Text style={[styles.label, { color: secondary ? colors.ink : colors.ivory }]}>{label}</Text>
+      <Text style={[styles.label, styles[`${variant}Label`]]}>{label}</Text>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
-  base: {
-    minHeight: 52,
-    paddingHorizontal: 24,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  primary: { backgroundColor: colors.ink },
-  secondary: { borderWidth: 1, borderColor: colors.ink },
-  label: {
-    fontFamily: fonts.sansMedium,
-    fontSize: 12,
-    letterSpacing: 1.8,
-    textTransform: "uppercase",
-  },
-});
+const useStyles = makeStyles((c) => ({
+  base: { minHeight: 54, paddingHorizontal: 24, alignItems: "center", justifyContent: "center", borderRadius: 999 },
+  compact: { minHeight: 44, paddingHorizontal: 18 },
+  primary: { backgroundColor: c.ink },
+  secondary: { borderWidth: 1, borderColor: c.ink },
+  light: { backgroundColor: onImage.cream },
+  label: { fontFamily: fonts.sansMedium, fontSize: 12, letterSpacing: 1.8, textTransform: "uppercase" },
+  primaryLabel: { color: c.ivory },
+  secondaryLabel: { color: c.ink },
+  lightLabel: { color: onImage.night },
+}));

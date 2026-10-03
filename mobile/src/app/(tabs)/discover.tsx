@@ -1,143 +1,275 @@
+import Feather from "@expo/vector-icons/Feather";
 import * as Haptics from "expo-haptics";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Pressable, ScrollView, Text, useWindowDimensions, View } from "react-native";
+import Animated, { FadeIn, FadeInRight, FadeOutLeft } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDiscover } from "~/api/catalog";
-import { Chip } from "~/components/chip";
-import { ProductCard } from "~/components/product-card";
-import { ProductGridSkeleton } from "~/components/skeleton";
+import { Button } from "~/components/button";
+import { ProductFeed } from "~/components/product-feed";
+import { FeedSkeleton } from "~/components/skeleton";
 import { EmptyState, ErrorState } from "~/components/states";
 import { Body, Display, Eyebrow } from "~/components/typography";
-import { pluralize } from "~/lib/format";
+import { imageUrl, pluralize } from "~/lib/format";
+import { useTabBarInset } from "~/lib/layout";
 import { moods, scentProfiles } from "~/shared";
-import { colors, fonts, gutter } from "~/theme";
+import { fonts, gutter, makeStyles, onImage, useColors } from "~/theme";
 
-const GAP = 16;
-
+const GAP = 12;
 const toggle = (list: string[], value: string) => (list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
 
-/** The website's scent finder (/discovery): pick characters, then moments; matches update as you go. */
+/**
+ * The website's scent finder (/discovery) as a guided flow: what draws you in, when you'll wear
+ * it, then your matches as a lookbook. The same matching runs on the server.
+ */
 export default function DiscoverScreen() {
-  const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
+  const [step, setStep] = useState<0 | 1 | 2>(0);
   const [scents, setScents] = useState<string[]>([]);
   const [moments, setMoments] = useState<string[]>([]);
-  const results = useDiscover(scents, moments);
-  const hasSelection = scents.length + moments.length > 0;
-  const tile = (width - gutter * 2 - 12) / 2;
-  const card = (width - gutter * 2 - GAP) / 2;
+  const restart = () => {
+    setScents([]);
+    setMoments([]);
+    setStep(0);
+  };
+
+  if (step === 2) return <Matches scents={scents} moments={moments} onBack={() => setStep(1)} onRestart={restart} />;
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={{ paddingTop: insets.top + 20, paddingBottom: 56 }}>
-      <View style={styles.padded}>
-        <Eyebrow>The scent finder</Eyebrow>
-        <Display size={40} style={{ marginTop: 10 }}>
-          What kind of scent are you looking for?
-        </Display>
-        <Body muted style={{ marginTop: 12 }}>
-          Choose as many characters as feel like you, then tell us when you’ll wear it. Your matches update as you go.
-        </Body>
-      </View>
-
-      <Step number="01" title="The character" />
-      <View style={[styles.padded, styles.tiles]}>
-        {scentProfiles.map((profile) => {
-          const selected = scents.includes(profile.slug);
-          return (
-            <Pressable
-              key={profile.slug}
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: selected }}
-              accessibilityLabel={`${profile.label}: ${profile.description}`}
-              onPress={() => {
-                void Haptics.selectionAsync();
-                setScents((list) => toggle(list, profile.slug));
-              }}
-              style={[styles.tile, { width: tile }, selected && styles.tileSelected]}
-            >
-              <Text style={[styles.tileTitle, selected && { color: colors.ivory }]}>{profile.label}</Text>
-              <Text style={[styles.tileText, selected && { color: colors.sand }]}>{profile.description}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-
-      <Step number="02" title="The moment" />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-        {moods.map((mood) => (
-          <Chip
-            key={mood.slug}
-            label={mood.label}
-            selected={moments.includes(mood.slug)}
-            onPress={() => {
-              void Haptics.selectionAsync();
-              setMoments((list) => toggle(list, mood.slug));
-            }}
-          />
-        ))}
-      </ScrollView>
-
-      <View style={[styles.padded, { marginTop: 36 }]}>
-        <Eyebrow>Your matches</Eyebrow>
-        {hasSelection && results.data && (
-          <Text style={styles.count} accessibilityLiveRegion="polite">
-            {pluralize(results.data.results.length, "fragrance")} for you
-          </Text>
-        )}
-        {hasSelection && (
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => {
-              setScents([]);
-              setMoments([]);
-            }}
-            hitSlop={8}
-          >
-            <Text style={styles.reset}>Start again</Text>
-          </Pressable>
-        )}
-      </View>
-
-      {!hasSelection ? (
-        <EmptyState title="Start with a character" message="Your matches appear here as soon as you choose." />
-      ) : results.isPending ? (
-        <ProductGridSkeleton count={2} />
-      ) : results.isError ? (
-        <ErrorState message={results.error.message} onRetry={results.refetch} />
-      ) : results.data.results.length === 0 ? (
-        <EmptyState title="No exact match" message="Try fewer choices: every NOIRÉ fragrance has a few characters and moments." />
+    <Question
+      key={step}
+      step={step}
+      title={step === 0 ? "What draws you in?" : "When will you wear it?"}
+      hint={step === 0 ? "Choose as many as feel like you." : "Pick a moment or two, or skip."}
+      canContinue={step === 0 ? scents.length > 0 : true}
+      continueLabel={step === 0 ? "Next" : moments.length ? "See my matches" : "Skip, show matches"}
+      onBack={step === 1 ? () => setStep(0) : undefined}
+      onContinue={() => setStep(step === 0 ? 1 : 2)}
+    >
+      {step === 0 ? (
+        <CharacterTiles selected={scents} onToggle={(slug) => setScents((list) => toggle(list, slug))} />
       ) : (
-        <View style={[styles.padded, styles.grid, results.isPlaceholderData && { opacity: 0.6 }]}>
-          {results.data.results.map((product) => (
-            <ProductCard key={product.id} product={product} width={card} />
-          ))}
-        </View>
+        <MomentTiles selected={moments} onToggle={(slug) => setMoments((list) => toggle(list, slug))} />
       )}
-    </ScrollView>
+    </Question>
   );
 }
 
-function Step({ number, title }: { number: string; title: string }) {
+function Question({
+  step,
+  title,
+  hint,
+  canContinue,
+  continueLabel,
+  onBack,
+  onContinue,
+  children,
+}: {
+  step: number;
+  title: string;
+  hint: string;
+  canContinue: boolean;
+  continueLabel: string;
+  onBack?: () => void;
+  onContinue: () => void;
+  children: React.ReactNode;
+}) {
+  const styles = useStyles();
+  const c = useColors();
+  const insets = useSafeAreaInsets();
+  const bottom = useTabBarInset();
   return (
-    <View style={[styles.padded, styles.step]}>
-      <Text style={styles.stepNumber}>{number}</Text>
-      <Eyebrow style={{ color: colors.ink }}>{title}</Eyebrow>
+    <View style={styles.screen}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: bottom + 110 }}>
+        <View style={styles.padded}>
+          <View style={styles.progress} accessibilityLabel={`Step ${step + 1} of 3`} accessible>
+            {[0, 1, 2].map((i) => (
+              <View key={i} style={[styles.segment, i <= step && styles.segmentOn]} />
+            ))}
+          </View>
+          <Eyebrow style={{ marginTop: 20 }}>The scent finder · {step + 1} of 3</Eyebrow>
+          <Animated.View entering={FadeInRight.duration(380)} exiting={FadeOutLeft.duration(200)}>
+            <Display size={44} style={{ marginTop: 8 }}>
+              {title}
+            </Display>
+            <Body muted style={{ marginTop: 8 }}>
+              {hint}
+            </Body>
+          </Animated.View>
+        </View>
+        <Animated.View entering={FadeInRight.delay(80).duration(420)} style={{ marginTop: 24 }}>
+          {children}
+        </Animated.View>
+      </ScrollView>
+
+      <View style={[styles.footer, { paddingBottom: bottom + 12 }]}>
+        {onBack && (
+          <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={onBack} hitSlop={8} style={styles.backButton}>
+            <Feather name="arrow-left" size={20} color={c.ink} />
+          </Pressable>
+        )}
+        <Button label={continueLabel} disabled={!canContinue} onPress={onContinue} style={{ flex: 1 }} />
+      </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.ivory },
+function CharacterTiles({ selected, onToggle }: { selected: string[]; onToggle: (slug: string) => void }) {
+  const styles = useStyles();
+  const c = useColors();
+  const { width } = useWindowDimensions();
+  const tile = (width - gutter * 2 - GAP) / 2;
+  return (
+    <View style={[styles.padded, styles.grid]}>
+      {scentProfiles.map((profile) => {
+        const on = selected.includes(profile.slug);
+        return (
+          <Pressable
+            key={profile.slug}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: on }}
+            accessibilityLabel={`${profile.label}: ${profile.description}`}
+            onPress={() => {
+              void Haptics.selectionAsync();
+              onToggle(profile.slug);
+            }}
+            style={({ pressed }) => [styles.tile, { width: tile }, on && styles.tileOn, pressed && { transform: [{ scale: 0.97 }] }]}
+          >
+            {on && <Feather name="check" size={16} color={c.ivory} style={styles.check} />}
+            <Text style={[styles.tileTitle, on && { color: c.ivory }]}>{profile.label}</Text>
+            <Text style={[styles.tileText, on && { color: c.sand }]}>{profile.description}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+function MomentTiles({ selected, onToggle }: { selected: string[]; onToggle: (slug: string) => void }) {
+  const styles = useStyles();
+  const { width } = useWindowDimensions();
+  const tile = (width - gutter * 2 - GAP) / 2;
+  return (
+    <View style={[styles.padded, styles.grid]}>
+      {moods.map((mood) => {
+        const on = selected.includes(mood.slug);
+        return (
+          <Pressable
+            key={mood.slug}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: on }}
+            accessibilityLabel={`${mood.label}: ${mood.description}`}
+            onPress={() => {
+              void Haptics.selectionAsync();
+              onToggle(mood.slug);
+            }}
+            style={({ pressed }) => [styles.moment, { width: tile, height: tile * 1.25 }, on && styles.momentOn, pressed && { transform: [{ scale: 0.97 }] }]}
+          >
+            <Image source={imageUrl(mood.image)} style={styles.fill} contentFit="cover" transition={250} />
+            <LinearGradient colors={["rgba(20,19,18,0)", "rgba(20,19,18,0.7)"]} locations={[0.35, 1]} style={styles.fill} />
+            {on && (
+              <View style={styles.momentCheck}>
+                <Feather name="check" size={16} color={onImage.night} />
+              </View>
+            )}
+            <Text style={styles.momentTitle}>{mood.label}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+function Matches({ scents, moments, onBack, onRestart }: { scents: string[]; moments: string[]; onBack: () => void; onRestart: () => void }) {
+  const styles = useStyles();
+  const insets = useSafeAreaInsets();
+  const bottom = useTabBarInset();
+  const results = useDiscover(scents, moments);
+
+  if (results.isPending) return <FeedSkeleton />;
+  if (results.isError) return <ErrorState message={results.error.message} onRetry={results.refetch} />;
+  if (results.data.results.length === 0) {
+    return (
+      <View style={styles.screen}>
+        <EmptyState title="No exact match" message="Try fewer choices: every NOIRÉ fragrance has a few characters and moments." />
+        <View style={[styles.padded, { paddingBottom: bottom + 16 }]}>
+          <Button label="Change my answers" variant="secondary" onPress={onBack} />
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <Animated.View entering={FadeIn.duration(400)} style={{ flex: 1 }}>
+      <ProductFeed
+        products={results.data.results}
+        bottomInset={bottom}
+        overlay={
+          <View style={[styles.matchBar, { paddingTop: insets.top + 8 }]} pointerEvents="box-none">
+            <Pressable accessibilityRole="button" accessibilityLabel="Change my answers" onPress={onBack} hitSlop={8} style={styles.round}>
+              <Feather name="sliders" size={18} color={onImage.cream} />
+            </Pressable>
+            <Text style={styles.matchTitle}>{pluralize(results.data.results.length, "match", "matches")} for you</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel="Start again" onPress={onRestart} hitSlop={8} style={styles.round}>
+              <Feather name="rotate-ccw" size={18} color={onImage.cream} />
+            </Pressable>
+          </View>
+        }
+      />
+    </Animated.View>
+  );
+}
+
+const useStyles = makeStyles((c) => ({
+  screen: { flex: 1, backgroundColor: c.ivory },
   padded: { paddingHorizontal: gutter },
-  step: { flexDirection: "row", alignItems: "baseline", gap: 10, marginTop: 36, marginBottom: 14 },
-  stepNumber: { fontFamily: fonts.sans, fontSize: 12, color: colors.faint, fontVariant: ["tabular-nums"] },
-  tiles: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  tile: { minHeight: 88, padding: 14, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paper },
-  tileSelected: { backgroundColor: colors.ink, borderColor: colors.ink },
-  tileTitle: { fontFamily: fonts.serif, fontSize: 21, color: colors.ink },
-  tileText: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 4 },
-  chips: { gap: 8, paddingHorizontal: gutter },
-  count: { fontFamily: fonts.serif, fontSize: 26, color: colors.ink, marginTop: 8 },
-  reset: { fontFamily: fonts.sansMedium, fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase", color: colors.muted, textDecorationLine: "underline", marginTop: 10 },
-  grid: { flexDirection: "row", flexWrap: "wrap", columnGap: GAP, rowGap: 28, marginTop: 20 },
-});
+  fill: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+  progress: { flexDirection: "row", gap: 6 },
+  segment: { flex: 1, height: 3, borderRadius: 2, backgroundColor: c.sand },
+  segmentOn: { backgroundColor: c.ink },
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: GAP },
+  tile: { minHeight: 104, padding: 16, borderRadius: 20, justifyContent: "flex-end", backgroundColor: c.stone },
+  tileOn: { backgroundColor: c.ink },
+  check: { position: "absolute", top: 14, right: 14 },
+  tileTitle: { fontFamily: fonts.serif, fontSize: 26, color: c.ink },
+  tileText: { fontFamily: fonts.sans, fontSize: 12, color: c.muted, marginTop: 2 },
+  moment: { borderRadius: 20, overflow: "hidden", justifyContent: "flex-end", padding: 14, backgroundColor: c.stone, borderWidth: 2, borderColor: "transparent" },
+  momentOn: { borderColor: c.ink },
+  momentCheck: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: onImage.cream,
+  },
+  momentTitle: { fontFamily: fonts.serif, fontSize: 24, color: onImage.cream },
+  footer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: "row",
+    gap: 10,
+    paddingTop: 12,
+    paddingHorizontal: gutter,
+    backgroundColor: c.ivory,
+  },
+  backButton: { width: 54, height: 54, borderRadius: 27, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: c.line },
+  matchBar: { position: "absolute", top: 0, left: 0, right: 0, flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: gutter },
+  matchTitle: { flex: 1, textAlign: "center", fontFamily: fonts.serif, fontSize: 22, color: onImage.cream },
+  round: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(26,25,24,0.35)",
+    borderWidth: 1,
+    borderColor: "rgba(247,243,237,0.35)",
+  },
+}));

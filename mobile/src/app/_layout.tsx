@@ -5,7 +5,7 @@ import { Inter_400Regular } from "@expo-google-fonts/inter/400Regular";
 import { Inter_500Medium } from "@expo-google-fonts/inter/500Medium";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack } from "expo-router";
+import { DarkTheme, DefaultTheme, SplashScreen, Stack, ThemeProvider } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "~/auth/auth-provider";
@@ -13,7 +13,7 @@ import { useCartRealtime } from "~/cart/cart";
 import { OfflineBanner } from "~/components/offline-banner";
 import { ToastProvider } from "~/components/toast";
 import { createQueryClient } from "~/lib/query";
-import { colors, fonts } from "~/theme";
+import { fonts, palettes, useScheme } from "~/theme";
 
 // Keep the splash screen up until the brand fonts and the saved session are ready, so nothing
 // flashes in a system font or as "signed out".
@@ -43,6 +43,8 @@ export default function RootLayout() {
 
 function App() {
   const { ready } = useAuth();
+  const scheme = useScheme();
+  const c = palettes[scheme];
   useCartRealtime();
 
   useEffect(() => {
@@ -50,22 +52,29 @@ function App() {
   }, [ready]);
   if (!ready) return null;
 
+  const base = scheme === "dark" ? DarkTheme : DefaultTheme;
+  const theme = {
+    ...base,
+    colors: { ...base.colors, primary: c.ink, background: c.ivory, card: c.ivory, text: c.ink, border: c.line, notification: c.ink },
+  };
+
   return (
-    <>
-      <StatusBar style="dark" />
+    <ThemeProvider value={theme}>
+      <StatusBar style="auto" />
       <Stack
         screenOptions={{
-          contentStyle: { backgroundColor: colors.ivory },
-          headerStyle: { backgroundColor: colors.ivory },
+          contentStyle: { backgroundColor: c.ivory },
+          headerStyle: { backgroundColor: c.ivory },
           headerShadowVisible: false,
-          headerTintColor: colors.ink,
+          headerTintColor: c.ink,
           headerTitleStyle: { fontFamily: fonts.sansMedium, fontSize: 15 },
           headerBackButtonDisplayMode: "minimal",
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false, title: "" }} />
-        <Stack.Screen name="product/[slug]" options={{ title: "" }} />
-        <Stack.Screen name="search" options={{ title: "Search" }} />
+        <Stack.Screen name="product/[slug]" options={{ headerShown: false }} />
+        <Stack.Screen name="collection" options={{ headerShown: false }} />
+        <Stack.Screen name="search" options={{ title: "Search", presentation: "modal" }} />
         <Stack.Screen name="checkout" options={{ title: "Checkout" }} />
         <Stack.Screen name="order/[orderNumber]" options={{ title: "Order" }} />
         <Stack.Screen name="orders" options={{ title: "Your orders" }} />
@@ -74,6 +83,6 @@ function App() {
         <Stack.Screen name="payment-return" options={{ headerShown: false }} />
       </Stack>
       <OfflineBanner />
-    </>
+    </ThemeProvider>
   );
 }

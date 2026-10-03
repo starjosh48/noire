@@ -1,10 +1,11 @@
 import { useNetInfo } from "@react-native-community/netinfo";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, fonts } from "~/theme";
+import { fonts, makeStyles } from "~/theme";
 
 /** A quiet strip at the top while the phone is offline. Nothing pretends to save meanwhile. */
 export function OfflineBanner() {
+  const styles = useStyles();
   const { isConnected, isInternetReachable } = useNetInfo();
   const insets = useSafeAreaInsets();
   if (isConnected !== false && isInternetReachable !== false) return null;
@@ -15,7 +16,7 @@ export function OfflineBanner() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   banner: {
     position: "absolute",
     top: 0,
@@ -27,4 +28,4 @@ const styles = StyleSheet.create({
     backgroundColor: colors.ink,
   },
   text: { fontFamily: fonts.sans, fontSize: 12, color: colors.ivory, textAlign: "center" },
-});
+}));

@@ -1,11 +1,13 @@
 import { forwardRef } from "react";
-import { StyleSheet, Text, TextInput, View, type TextInputProps } from "react-native";
-import { colors, fonts } from "~/theme";
+import { Text, TextInput, View, type TextInputProps } from "react-native";
+import { fonts, makeStyles, useColors } from "~/theme";
 
 type Props = TextInputProps & { label: string; error?: string; hint?: string };
 
 /** Labelled input with the website's field styling and an announced error. */
 export const TextField = forwardRef<TextInput, Props>(function TextField({ label, error, hint, style, ...props }, ref) {
+  const styles = useStyles();
+  const colors = useColors();
   return (
     <View style={{ marginTop: 16 }}>
       <Text style={styles.label}>{label}</Text>
@@ -28,11 +30,12 @@ export const TextField = forwardRef<TextInput, Props>(function TextField({ label
   );
 });
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   label: { fontFamily: fonts.sansMedium, fontSize: 11, letterSpacing: 1.6, textTransform: "uppercase", color: colors.muted, marginBottom: 8 },
   input: {
     minHeight: 50,
     paddingHorizontal: 14,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.line,
     backgroundColor: colors.paper,
@@ -42,4 +45,4 @@ const styles = StyleSheet.create({
   },
   error: { fontFamily: fonts.sans, fontSize: 13, color: colors.danger, marginTop: 6 },
   hint: { fontFamily: fonts.sans, fontSize: 12, color: colors.faint, marginTop: 6 },
-});
+}));

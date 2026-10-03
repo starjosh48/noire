@@ -3,7 +3,11 @@ import { useEffect } from "react";
 import { ApiError, apiFetch } from "~/api/client";
 import { useAuth } from "~/auth/auth-provider";
 import { supabase } from "~/lib/supabase";
-import { calculateTotals, type Cart, type CartLine, type ProductDetail, type ProductVariant } from "~/shared";
+import { calculateTotals, type Cart, type CartLine, type ProductSummary, type QuickVariant } from "~/shared";
+
+/** What a prediction needs to know about the fragrance and size being added. */
+export type AddedProduct = Pick<ProductSummary, "id" | "number" | "name" | "slug" | "image_url" | "fragrance_family" | "secondary_family">;
+export type AddedVariant = QuickVariant & { sku?: string };
 
 // The cart lives on the server (the same cart the website shows). The app shows server answers,
 // and only predicts a change for the moment between a tap and the server's reply.
@@ -34,7 +38,7 @@ export function withTotals(lines: CartLine[]): Cart {
   };
 }
 
-export function predictAdd(cart: Cart, product: ProductDetail, variant: ProductVariant, quantity: number): Cart {
+export function predictAdd(cart: Cart, product: AddedProduct, variant: AddedVariant, quantity: number): Cart {
   const existing = cart.lines.find((l) => l.variant.id === variant.id);
   const lines = existing
     ? cart.lines.map((l) =>
@@ -56,7 +60,7 @@ export function predictAdd(cart: Cart, product: ProductDetail, variant: ProductV
             fragrance_family: product.fragrance_family,
             secondary_family: product.secondary_family,
           },
-          variant: { ...variant, price: Number(variant.price) },
+          variant: { id: variant.id, size_ml: variant.size_ml, stock_quantity: variant.stock_quantity, sku: variant.sku ?? "", price: Number(variant.price) },
           lineTotal: Number(variant.price) * quantity,
           maxQuantity: Math.max(1, Math.min(variant.stock_quantity, 10)),
           issue: null,
@@ -74,7 +78,7 @@ export function predictQuantity(cart: Cart, itemId: string, quantity: number): C
 }
 
 type Mutation =
-  | { kind: "add"; product: ProductDetail; variant: ProductVariant; quantity: number }
+  | { kind: "add"; product: AddedProduct; variant: AddedVariant; quantity: number }
   | { kind: "quantity"; itemId: string; quantity: number };
 
 /**

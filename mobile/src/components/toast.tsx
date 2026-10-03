@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { AccessibilityInfo, Animated, Pressable, StyleSheet, Text, View } from "react-native";
+import { AccessibilityInfo, Animated, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, fonts } from "~/theme";
+import { fonts, makeStyles, useColors } from "~/theme";
 
 type Toast = { title: string; description?: string; tone?: "default" | "error"; action?: { label: string; onPress: () => void } };
 
@@ -15,6 +15,8 @@ export function useToast() {
 
 /** Small confirmations above the tab bar ("Added to cart · View cart"); the shopper stays put. */
 export function ToastProvider({ children }: { children: ReactNode }) {
+  const styles = useStyles();
+  const colors = useColors();
   const [toast, setToast] = useState<(Toast & { id: number }) | null>(null);
   const opacity = useState(() => new Animated.Value(0))[0];
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -70,7 +72,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   wrap: { position: "absolute", left: 16, right: 16 },
   toast: {
     flexDirection: "row",
@@ -78,6 +80,7 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingHorizontal: 18,
     paddingVertical: 14,
+    borderRadius: 16,
     backgroundColor: colors.ink,
   },
   title: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.ivory },
@@ -90,4 +93,4 @@ const styles = StyleSheet.create({
     color: colors.ivory,
     textDecorationLine: "underline",
   },
-});
+}));

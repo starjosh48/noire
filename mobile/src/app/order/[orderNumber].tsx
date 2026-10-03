@@ -10,13 +10,15 @@ import { ErrorState } from "~/components/states";
 import { Body, Display, Eyebrow } from "~/components/typography";
 import { formatPrice, imageUrl } from "~/lib/format";
 import { deliveryEstimate, firstName, formatDate, paymentMethodLabel } from "~/shared";
-import { colors, fonts, gutter } from "~/theme";
+import { fonts, gutter, makeStyles, useColors } from "~/theme";
 
 /**
  * One order. Straight after checkout (?placed=1) it opens as the confirmation; from the account
  * it's the order's details. Guests reach it with the order's access key (?key=…), as on the website.
  */
 export default function OrderScreen() {
+  const styles = useStyles();
+  const colors = useColors();
   const { orderNumber, key, placed } = useLocalSearchParams<{ orderNumber: string; key?: string; placed?: string }>();
   const order = useOrder(orderNumber, key);
   const justPlaced = placed === "1";
@@ -124,6 +126,7 @@ export default function OrderScreen() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const styles = useStyles();
   return (
     <View style={[styles.section, styles.padded]}>
       <Display size={24} style={{ marginBottom: 12 }}>
@@ -135,6 +138,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function Line({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  const styles = useStyles();
   return (
     <View style={styles.line}>
       <Text style={[styles.lineLabel, strong && styles.strong]}>{label}</Text>
@@ -143,7 +147,7 @@ function Line({ label, value, strong }: { label: string; value: string; strong?:
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   screen: { flex: 1, backgroundColor: colors.ivory },
   padded: { paddingHorizontal: gutter },
   numberRow: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", marginTop: 28 },
@@ -151,7 +155,7 @@ const styles = StyleSheet.create({
   value: { fontFamily: fonts.sansMedium, fontSize: 15, color: colors.ink, marginTop: 4, fontVariant: ["tabular-nums"] },
   section: { marginTop: 36, paddingTop: 24, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line },
   item: { flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 10 },
-  thumb: { width: 56, height: 70, backgroundColor: colors.stone },
+  thumb: { width: 56, height: 70, borderRadius: 10, backgroundColor: colors.stone },
   itemName: { fontFamily: fonts.serif, fontSize: 19, color: colors.ink },
   itemMeta: { fontFamily: fonts.sans, fontSize: 12, color: colors.muted, marginTop: 3 },
   totals: { marginTop: 14, paddingTop: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line, gap: 8 },
@@ -160,4 +164,4 @@ const styles = StyleSheet.create({
   lineValue: { fontFamily: fonts.sans, fontSize: 14, color: colors.ink, fontVariant: ["tabular-nums"] },
   strong: { fontFamily: fonts.sansMedium, fontSize: 16, color: colors.ink },
   payment: { fontFamily: fonts.sans, fontSize: 12, color: colors.faint, marginTop: 4 },
-});
+}));

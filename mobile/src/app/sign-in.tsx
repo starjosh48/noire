@@ -10,7 +10,7 @@ import { Button } from "~/components/button";
 import { TextField } from "~/components/text-field";
 import { useToast } from "~/components/toast";
 import { Body, Display, Eyebrow } from "~/components/typography";
-import { colors, fonts, gutter } from "~/theme";
+import { fonts, gutter, makeStyles, useColors } from "~/theme";
 
 // The website's email rule (src/components/auth/email-sign-in.tsx).
 const schema = z.object({
@@ -22,6 +22,8 @@ const schema = z.object({
  * Supabase) or a one-time email link. Both land on the same Supabase user.
  */
 export default function SignInScreen() {
+  const styles = useStyles();
+  const colors = useColors();
   const { signInWithGoogle, sendEmailLink, expired } = useAuth();
   const toast = useToast();
   const [googleBusy, setGoogleBusy] = useState(false);
@@ -133,13 +135,13 @@ export default function SignInScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   screen: { flex: 1, backgroundColor: colors.ivory },
   content: { paddingHorizontal: gutter, paddingTop: 16, paddingBottom: 48 },
-  notice: { fontFamily: fonts.sans, fontSize: 14, color: colors.ink, backgroundColor: colors.stone, padding: 14, marginTop: 20 },
+  notice: { fontFamily: fonts.sans, fontSize: 14, color: colors.ink, backgroundColor: colors.stone, padding: 14, marginTop: 20, borderRadius: 14, overflow: "hidden" },
   divider: { flexDirection: "row", alignItems: "center", gap: 12, marginVertical: 28 },
   rule: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: colors.line },
   or: { fontFamily: fonts.sans, fontSize: 11, letterSpacing: 1.6, textTransform: "uppercase", color: colors.faint },
   sent: { alignItems: "center", padding: 24, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paper },
   error: { fontFamily: fonts.sans, fontSize: 14, color: colors.danger, marginTop: 20 },
-});
+}));
