@@ -7,11 +7,10 @@ import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { AlertIcon, ArrowLeftIcon, CartIcon } from "@/components/ui/icons";
 import { getAuthProviders } from "@/lib/auth/providers";
-import { getCurrentUser, getProfile } from "@/lib/auth/session";
+import { getWebViewer } from "@/lib/auth/session";
 import { getCart } from "@/lib/cart/service";
-import { getLastDeliveryDetails } from "@/lib/orders/queries";
+import { getCheckoutDefaults } from "@/lib/orders/checkout-defaults";
 import { paystackConfigured, paystackTestMode } from "@/lib/payments/paystack";
-import { nigerianStates, type CheckoutInput } from "@/lib/validation/checkout";
 
 export const metadata: Metadata = {
   title: "Checkout",
@@ -26,7 +25,8 @@ const paymentNotices: Record<string, string> = {
 export default async function CheckoutPage({ searchParams }: PageProps<"/checkout">) {
   const { payment } = await searchParams;
   const paymentNotice = typeof payment === "string" ? paymentNotices[payment] : undefined;
-  const [cart, user, providers] = await Promise.all([getCart(), getCurrentUser(), getAuthProviders()]);
+  const [cart, viewer, providers] = await Promise.all([getCart(), getWebViewer(), getAuthProviders()]);
+  const { user } = viewer;
 
   if (cart.lines.length === 0) {
     return (
@@ -42,17 +42,7 @@ export default async function CheckoutPage({ searchParams }: PageProps<"/checkou
     );
   }
 
-  const [profile, last] = user ? await Promise.all([getProfile(), getLastDeliveryDetails()]) : [null, null];
-  const state = last?.state && (nigerianStates as readonly string[]).includes(last.state) ? last.state : undefined;
-  const defaults: Partial<CheckoutInput> = {
-    email: profile?.email || user?.email || "",
-    fullName: last?.customer_name ?? profile?.full_name ?? user?.name ?? "",
-    phone: last?.customer_phone ?? profile?.phone ?? "",
-    address: last?.shipping_address ?? "",
-    city: last?.city ?? "",
-    state: state as CheckoutInput["state"] | undefined,
-    postalCode: last?.postal_code ?? "",
-  };
+  const defaults = await getCheckoutDefaults(viewer);
 
   return (
     <div className="shell pb-24 pt-10 md:pb-32 md:pt-14">

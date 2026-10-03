@@ -2,18 +2,62 @@ import "server-only";
 import { cookies } from "next/headers";
 import { unstable_rethrow } from "next/navigation";
 import { commerce } from "@/lib/config";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getCurrentUser, type SessionUser } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calculateTotals, emptyCart } from "./pricing";
 import type { Cart, CartLine } from "./types";
 
 // Carts are server-side. Signed-in customers own one cart (carts.user_id); guests get a cart
-// whose random id lives in an httpOnly cookie. Both are only touched through the service role,
-// after the caller's identity has been established here.
+// whose random id is kept by the client: an httpOnly cookie on the website, a request header in
+// the mobile app. Both are only touched through the service role, after the caller's identity
+// has been established here.
 
 export const GUEST_CART_COOKIE = "noire_cart";
 const GUEST_CART_MAX_AGE = 60 * 60 * 24 * 60; // 60 days
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isCartId(value: string | null | undefined): value is string {
+  return !!value && UUID.test(value);
+}
+
+/** Where a guest's cart id is kept between requests. */
+export type GuestCartStore = {
+  read(): Promise<string | null>;
+  remember(cartId: string): Promise<void>;
+  forget(): Promise<void>;
+};
+
+/** Whose cart: a signed-in customer, or a guest identified by their stored cart id. */
+export type CartOwner = { user: SessionUser | null; guestStore: GuestCartStore };
+
+/** The website's guest cart cookie. Writes only take effect in Server Actions and Route Handlers. */
+export const cookieGuestStore: GuestCartStore = {
+  async read() {
+    const value = (await cookies()).get(GUEST_CART_COOKIE)?.value;
+    return isCartId(value) ? value : null;
+  },
+  async remember(cartId) {
+    (await cookies()).set(GUEST_CART_COOKIE, cartId, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: GUEST_CART_MAX_AGE,
+    });
+  },
+  async forget() {
+    try {
+      (await cookies()).delete(GUEST_CART_COOKIE);
+    } catch {
+      // Read-only context; the stale cookie is ignored for signed-in customers.
+    }
+  },
+};
+
+/** The website visitor's cart owner, from their session and guest cart cookies. */
+export async function getWebCartOwner(): Promise<CartOwner> {
+  return { user: await getCurrentUser(), guestStore: cookieGuestStore };
+}
 
 const CART_ITEM_COLUMNS = `
   id, quantity,
@@ -72,18 +116,13 @@ export async function loadCart(cartId: string | null): Promise<Cart> {
   return summarize(((data ?? []) as unknown as CartItemRow[]).map(toLine));
 }
 
-async function readGuestCartId() {
-  const value = (await cookies()).get(GUEST_CART_COOKIE)?.value;
-  return value && UUID.test(value) ? value : null;
-}
-
 async function findUserCartId(userId: string) {
   const { data } = await createAdminClient().from("noire_carts").select("id").eq("user_id", userId).maybeSingle();
   return data?.id ?? null;
 }
 
-async function findGuestCartId() {
-  const guestId = await readGuestCartId();
+async function findGuestCartId(guestStore: GuestCartStore) {
+  const guestId = await guestStore.read();
   if (!guestId) return null;
   const { data } = await createAdminClient()
     .from("noire_carts")
@@ -95,14 +134,14 @@ async function findGuestCartId() {
 }
 
 /** Read-only lookup, safe in Server Components (never writes cookies). */
-export async function getCurrentCartId() {
-  const user = await getCurrentUser();
-  return user ? findUserCartId(user.id) : findGuestCartId();
+export async function getCurrentCartId(owner?: CartOwner) {
+  const { user, guestStore } = owner ?? (await getWebCartOwner());
+  return user ? findUserCartId(user.id) : findGuestCartId(guestStore);
 }
 
-export async function getCart(): Promise<Cart> {
+export async function getCart(owner?: CartOwner): Promise<Cart> {
   try {
-    return await loadCart(await getCurrentCartId());
+    return await loadCart(await getCurrentCartId(owner));
   } catch (error) {
     unstable_rethrow(error);
     return emptyCart();
@@ -113,12 +152,15 @@ export async function getCart(): Promise<Cart> {
  * Cart id for a mutation. Only call from Server Actions or Route Handlers (may set cookies).
  * Signed-in customers get any leftover guest cart merged in first.
  */
-export async function resolveCartIdForWrite({ create }: { create: boolean }): Promise<string | null> {
-  const user = await getCurrentUser();
+export async function resolveCartIdForWrite(
+  { create }: { create: boolean },
+  owner?: CartOwner,
+): Promise<string | null> {
+  const { user, guestStore } = owner ?? (await getWebCartOwner());
   const admin = createAdminClient();
 
   if (user) {
-    await mergeGuestCartIntoUser(user.id);
+    await mergeGuestCartIntoUser(user.id, guestStore);
     const existing = await findUserCartId(user.id);
     if (existing || !create) return existing;
     const { data, error } = await admin
@@ -130,37 +172,24 @@ export async function resolveCartIdForWrite({ create }: { create: boolean }): Pr
     return data.id;
   }
 
-  const existing = await findGuestCartId();
+  const existing = await findGuestCartId(guestStore);
   if (existing || !create) return existing;
   const { data, error } = await admin.from("noire_carts").insert({}).select("id").single();
   if (error) throw error;
-  (await cookies()).set(GUEST_CART_COOKIE, data.id, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: GUEST_CART_MAX_AGE,
-  });
+  await guestStore.remember(data.id);
   return data.id;
 }
 
 /**
  * Moves a guest cart into the customer's cart after sign-in. Quantities for the same size are
- * combined, capped by stock and the per-line limit. Only call where cookies are writable.
+ * combined, capped by stock and the per-line limit. Only call where the guest store is writable.
  */
-export async function mergeGuestCartIntoUser(userId: string) {
-  const cookieStore = await cookies();
-  const guestId = await readGuestCartId();
+export async function mergeGuestCartIntoUser(userId: string, guestStore: GuestCartStore = cookieGuestStore) {
+  const guestId = await guestStore.read();
   if (!guestId) return;
 
   const admin = createAdminClient();
-  const clearCookie = () => {
-    try {
-      cookieStore.delete(GUEST_CART_COOKIE);
-    } catch {
-      // Read-only context; the stale cookie is ignored for signed-in customers.
-    }
-  };
+  const forgetGuest = () => guestStore.forget();
 
   try {
     const { data: guestCart } = await admin
@@ -169,7 +198,7 @@ export async function mergeGuestCartIntoUser(userId: string) {
       .eq("id", guestId)
       .is("user_id", null)
       .maybeSingle();
-    if (!guestCart) return clearCookie();
+    if (!guestCart) return forgetGuest();
 
     const userCartId = await findUserCartId(userId);
     if (!userCartId) {
@@ -180,7 +209,7 @@ export async function mergeGuestCartIntoUser(userId: string) {
         .eq("id", guestCart.id)
         .is("user_id", null);
       if (error) throw error;
-      return clearCookie();
+      return forgetGuest();
     }
 
     const [{ data: guestItems }, { data: userItems }] = await Promise.all([
@@ -208,9 +237,9 @@ export async function mergeGuestCartIntoUser(userId: string) {
       if (error) throw error;
     }
     await admin.from("noire_carts").delete().eq("id", guestCart.id);
-    clearCookie();
+    await forgetGuest();
   } catch (error) {
-    // Keep the guest cookie so the merge is retried on the next cart action.
+    // Keep the guest cart id so the merge is retried on the next cart action.
     console.error("[cart] Failed to merge guest cart", error);
   }
 }

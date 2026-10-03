@@ -1,7 +1,6 @@
 import "server-only";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getWebViewer, type Viewer } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/database";
 
 type OrderRow = Database["public"]["Tables"]["noire_orders"]["Row"];
@@ -27,10 +26,9 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ORDER_NUMBER = /^NO-\d{8}-[A-Z0-9]{4,8}$/;
 
 /** Orders for the signed-in customer, newest first (Row Level Security scopes the query). */
-export async function getOrdersForCurrentUser(limit?: number): Promise<OrderListItem[]> {
-  const user = await getCurrentUser();
+export async function getOrdersForCurrentUser(limit?: number, viewer?: Viewer): Promise<OrderListItem[]> {
+  const { user, supabase } = viewer ?? (await getWebViewer());
   if (!user) return [];
-  const supabase = await createClient();
   let query = supabase
     .from("noire_orders")
     .select(
@@ -51,13 +49,16 @@ export async function getOrdersForCurrentUser(limit?: number): Promise<OrderList
  * Loads an order for whoever is looking: its owner (via their session and RLS), or anyone
  * holding the secret access key from the confirmation link or email.
  */
-export async function getOrderForViewer(orderNumber: string, accessKey?: string | null): Promise<OrderDetail | null> {
+export async function getOrderForViewer(
+  orderNumber: string,
+  accessKey?: string | null,
+  viewer?: Viewer,
+): Promise<OrderDetail | null> {
   const number = orderNumber.toUpperCase();
   if (!ORDER_NUMBER.test(number)) return null;
 
-  const user = await getCurrentUser();
+  const { user, supabase } = viewer ?? (await getWebViewer());
   if (user) {
-    const supabase = await createClient();
     const { data, error } = await supabase
       .from("noire_orders")
       .select(`${ORDER_COLUMNS}, items:noire_order_items(${ITEM_COLUMNS})`)
@@ -82,10 +83,9 @@ export async function getOrderForViewer(orderNumber: string, accessKey?: string 
 }
 
 /** Most recent delivery details, used to prefill checkout for returning customers. */
-export async function getLastDeliveryDetails() {
-  const user = await getCurrentUser();
+export async function getLastDeliveryDetails(viewer?: Viewer) {
+  const { user, supabase } = viewer ?? (await getWebViewer());
   if (!user) return null;
-  const supabase = await createClient();
   const { data } = await supabase
     .from("noire_orders")
     .select("customer_name, customer_phone, shipping_address, city, state, country, postal_code")
