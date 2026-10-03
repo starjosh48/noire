@@ -24,6 +24,10 @@ A premium fragrance store built with Next.js and Supabase. Customers can discove
 
 `/` · `/shop` · `/shop/[slug]` · `/search` · `/collections` · `/discovery` · `/about` · `/care` · `/cart` · `/checkout` · `/checkout/confirmation/[orderNumber]` · `/orders/[orderNumber]` · `/account` · `/account/orders` · `/login` · `/auth/callback`
 
+### Mobile app
+
+The NOIRÉ app for iOS and Android lives in [`mobile/`](mobile/README.md). It shares this site's Supabase accounts, catalog, cart and orders through `/api/mobile/*`.
+
 ## 2. Tech stack
 
 - **Next.js 16** (App Router, Server Components, Server Actions, `proxy.ts`), **React 19**, **TypeScript**
@@ -132,9 +136,10 @@ RLS is enabled on every table by the migration:
 | `noire_profiles` | none | read/update **own** row | full |
 | `noire_orders`, `noire_order_items` | none | read **own** orders | full |
 | `noire_wishlist_items` | none | read/add/remove **own** items | full |
-| `noire_carts`, `noire_cart_items`, `noire_newsletter_subscribers` | none | none | full |
+| `noire_carts` | none | read **own** cart row (live sync signal) | full |
+| `noire_cart_items`, `noire_newsletter_subscribers` | none | none | full |
 
-Carts are deliberately server-only. A guest's cart is identified by a random UUID in an `httpOnly` cookie, and every cart operation goes through server actions that establish identity first. `noire_place_order()` is `SECURITY DEFINER`, and `EXECUTE` is revoked from `anon` and `authenticated`.
+Carts are written only by the server. Signed-in customers may read their own cart *row* so Supabase Realtime can tell their devices when the cart changed (the items are then re-read from the server). A guest's cart is identified by a random UUID in an `httpOnly` cookie, and every cart operation goes through server actions that establish identity first. `noire_place_order()` is `SECURITY DEFINER`, and `EXECUTE` is revoked from `anon` and `authenticated`.
 
 ## 6. Database migration
 
@@ -144,6 +149,8 @@ SQL lives in `supabase/migrations`:
 
 - `20261002000100_schema.sql`: tables, enums, triggers (profile creation, stock and price sync, search vectors), `search_products()`, RLS policies
 - `20261002000200_place_order.sql`: the transactional, idempotent order function
+- `20261002000300_online_payments.sql`: Paystack payment states, confirmation and cancellation
+- `20261003000100_cart_realtime.sql`: live cart sync between the website and the mobile app (owner-read policy on carts, item changes touch the cart, Realtime publication)
 
 **Local:** applied automatically by `npm run db:start`. To rebuild from scratch, run `npm run db:reset`; this re-runs migrations and `supabase/seed.sql`.
 
