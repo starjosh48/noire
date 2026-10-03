@@ -29,7 +29,9 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 160
         }
-      ]
+      ],
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "scheme": "noire",
     "experiments": {

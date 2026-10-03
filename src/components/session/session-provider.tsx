@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useCart } from "@/components/cart/cart-provider";
+import { useCartRealtime } from "@/components/cart/use-cart-realtime";
 import type { SessionUser } from "@/lib/auth/session";
 import type { Cart } from "@/lib/cart/types";
 
@@ -38,7 +39,7 @@ async function fetchSession(): Promise<SessionPayload | null> {
  * the pages themselves can be static and served from the edge cache.
  */
 export function SessionProvider({ children }: { children: ReactNode }) {
-  const { replaceCart, markReady } = useCart();
+  const { replaceCart, markReady, refresh } = useCart();
   const [user, setUser] = useState<SessionUser | null>(null);
   const [ready, setReady] = useState(false);
   const [wishlist, setWishlist] = useState<ReadonlySet<string>>(new Set());
@@ -66,6 +67,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [apply, reload]);
+
+  // Live updates when the cart changes on another device.
+  useCartRealtime(user?.id ?? null, refresh);
 
   const setSaved = useCallback((productId: string, saved: boolean) => {
     setWishlist((current) => {
