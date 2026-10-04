@@ -7,16 +7,18 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shopnoire.app"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#F7F3ED",
+        "backgroundColor": "#1A1918",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.shopnoire.app"
     },
     "plugins": [
       "expo-router",
@@ -27,9 +29,10 @@
         {
           "backgroundColor": "#F7F3ED",
           "image": "./assets/splash-icon.png",
-          "imageWidth": 160,
+          "imageWidth": 240,
           "dark": {
-            "backgroundColor": "#141312"
+            "backgroundColor": "#141312",
+            "image": "./assets/splash-icon-dark.png"
           }
         }
       ],
@@ -39,6 +42,13 @@
     "scheme": "noire",
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1d929784-2644-4e1a-a7ec-0f4bf8238483"
+      }
+    },
+    "owner": "j.o"
   }
 }

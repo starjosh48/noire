@@ -1,0 +1,30 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://mobile-app--shopnoire.netlify.app",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://hlsasslnfojuoeuxdfvz.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhsc2Fzc2xuZm9qdW9ldXhkZnZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTkxNjksImV4cCI6MjEwNjM5NTE2OX0.tUims2T6kYUFT8DkZJKyAGZI5OssEm6zb0egUMT-P-E"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://shopnoire.netlify.app",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://hlsasslnfojuoeuxdfvz.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhsc2Fzc2xuZm9qdW9ldXhkZnZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTkxNjksImV4cCI6MjEwNjM5NTE2OX0.tUims2T6kYUFT8DkZJKyAGZI5OssEm6zb0egUMT-P-E"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
