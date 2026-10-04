@@ -52,7 +52,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
     "doctor": "expo-doctor",
-    "test": "jest"
+    "test": "jest",
+    "check:contrast": "node scripts/check-contrast.mjs"
   },
   "private": true,
   "jest": {

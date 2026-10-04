@@ -9,7 +9,7 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "
 import { useCart, useCartMutation } from "~/cart/cart";
 import { formatPrice, imageUrl, productLabel } from "~/lib/format";
 import { commerce, familyLine, type ProductSummary, type QuickVariant } from "~/shared";
-import { fonts, gutter, makeStyles, onImage } from "~/theme";
+import { fonts, gutter, makeStyles, onImage, scrims } from "~/theme";
 import { Button } from "./button";
 import { useToast } from "./toast";
 
@@ -152,12 +152,7 @@ function FeedPage({
           <Image source={imageUrl(product.image_url)} style={styles.fill} contentFit="cover" transition={300} recyclingKey={product.id} />
         </Animated.View>
       </Pressable>
-      <LinearGradient
-        colors={["rgba(20,19,18,0.45)", "rgba(20,19,18,0)", "rgba(20,19,18,0)", "rgba(20,19,18,0.82)"]}
-        locations={[0, 0.22, 0.45, 1]}
-        style={styles.fill}
-        pointerEvents="none"
-      />
+      <LinearGradient colors={scrims.feed.colors} locations={scrims.feed.locations} style={styles.fill} pointerEvents="none" />
 
       <Animated.View style={[styles.copy, { paddingBottom: bottomInset + 28 }, textStyle]} pointerEvents="box-none">
         <Text style={styles.meta}>

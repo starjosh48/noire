@@ -12,10 +12,10 @@ import { FeedSkeleton } from "~/components/skeleton";
 import { ErrorState } from "~/components/states";
 import { imageUrl } from "~/lib/format";
 import { useTabBarInset } from "~/lib/layout";
-import { fonts, gutter, makeStyles, onImage } from "~/theme";
+import { fonts, gutter, makeStyles, onImage, scrims } from "~/theme";
 
-/** The lookbook: a cover, then every fragrance full-screen, in the collection's featured order. */
-export default function LookbookScreen() {
+/** Home: the lookbook. A cover, then every fragrance full-screen, in the collection's featured order. */
+export default function HomeScreen() {
   const products = useProducts({});
   const bottomInset = useTabBarInset();
 
@@ -70,10 +70,10 @@ function Cover({ bottomInset }: { bottomInset: number }) {
         contentFit="cover"
         transition={400}
       />
-      <LinearGradient colors={["rgba(20,19,18,0.5)", "rgba(20,19,18,0)", "rgba(20,19,18,0.75)"]} locations={[0, 0.35, 1]} style={styles.fill} />
+      <LinearGradient colors={scrims.cover.colors} locations={scrims.cover.locations} style={styles.fill} />
       <View style={[styles.coverCopy, { paddingBottom: bottomInset + 24 }]}>
         <Animated.Text entering={FadeInDown.delay(100).duration(700)} style={styles.eyebrow}>
-          The NOIRÉ collection · Twelve eaux de parfum
+          The NOIRÉ lookbook · Twelve eaux de parfum
         </Animated.Text>
         <Animated.Text entering={FadeInDown.delay(220).duration(800)} style={styles.headline}>
           Find the scent that <Text style={{ fontFamily: fonts.serifItalic }}>feels</Text> like you.

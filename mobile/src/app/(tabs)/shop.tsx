@@ -9,9 +9,21 @@ import { Display, Eyebrow } from "~/components/typography";
 import { imageUrl } from "~/lib/format";
 import { useTabBarInset } from "~/lib/layout";
 import { families, moods } from "~/shared";
-import { fonts, gutter, makeStyles, onImage, useColors } from "~/theme";
+import { fonts, gutter, makeStyles, onImage, scrims, useColors } from "~/theme";
 
 const GAP = 12;
+
+/**
+ * Family tiles keep the website's swatch colours, with whichever text colour reads on each:
+ * measured WCAG contrast for the 12px description (≥ 4.5:1). Amber is deepened 10% so cream
+ * passes; the light swatches (fresh, citrus) take charcoal text.
+ */
+const FAMILY_TILES: Record<string, { background?: string; text?: string }> = {
+  fresh: { text: onImage.night }, // 6.6:1
+  citrus: { text: onImage.night }, // 7.6:1
+  amber: { background: "#a15e29", text: onImage.cream }, // 4.6:1
+};
+const tileFor = (slug: string, swatch: string) => ({ background: swatch, text: onImage.cream, ...FAMILY_TILES[slug] });
 
 const collection = (params: Record<string, string> = {}): Href => ({ pathname: "/collection", params });
 
@@ -48,7 +60,7 @@ export default function ShopScreen() {
           style={({ pressed }) => [styles.hero, pressed && styles.pressed]}
         >
           <Image source={imageUrl("/images/editorial/atelier.webp")} style={styles.fill} contentFit="cover" transition={300} />
-          <LinearGradient colors={["rgba(20,19,18,0)", "rgba(20,19,18,0.7)"]} style={styles.fill} />
+          <LinearGradient colors={scrims.banner.colors} locations={scrims.banner.locations} style={styles.fill} />
           <View style={styles.heroCopy}>
             <Text style={styles.heroEyebrow}>The collection</Text>
             <Text style={styles.heroTitle}>All twelve</Text>
@@ -72,7 +84,7 @@ export default function ShopScreen() {
             style={({ pressed }) => [styles.mood, { width: moodCard, height: moodCard * 1.45 }, pressed && styles.pressed]}
           >
             <Image source={imageUrl(mood.image)} style={styles.fill} contentFit="cover" transition={300} />
-            <LinearGradient colors={["rgba(20,19,18,0)", "rgba(20,19,18,0.75)"]} locations={[0.4, 1]} style={styles.fill} />
+            <LinearGradient colors={scrims.card.colors} locations={scrims.card.locations} style={styles.fill} />
             <View style={styles.moodCopy}>
               <Text style={styles.moodTitle}>{mood.label}</Text>
               <Text style={styles.moodText} numberOfLines={2}>
@@ -91,13 +103,13 @@ export default function ShopScreen() {
             accessibilityRole="link"
             accessibilityLabel={`${family.label}. ${family.description}`}
             onPress={() => router.push(collection({ family: family.slug }))}
-            style={({ pressed }) => [styles.family, { width: half, backgroundColor: family.swatch }, pressed && styles.pressed]}
+            style={({ pressed }) => [styles.family, { width: half, backgroundColor: tileFor(family.slug, family.swatch).background }, pressed && styles.pressed]}
           >
-            <Text style={styles.familyTitle}>{family.label}</Text>
-            <Text style={styles.familyText} numberOfLines={3}>
+            <Text style={[styles.familyTitle, { color: tileFor(family.slug, family.swatch).text }]}>{family.label}</Text>
+            <Text style={[styles.familyText, { color: tileFor(family.slug, family.swatch).text }]} numberOfLines={3}>
               {family.description}
             </Text>
-            <Feather name="arrow-up-right" size={18} color={onImage.cream} style={styles.familyArrow} />
+            <Feather name="arrow-up-right" size={18} color={tileFor(family.slug, family.swatch).text} style={styles.familyArrow} />
           </Pressable>
         ))}
       </View>
@@ -169,7 +181,7 @@ const useStyles = makeStyles((c) => ({
   moodText: { fontFamily: fonts.sans, fontSize: 12, lineHeight: 17, color: onImage.creamMuted, marginTop: 4 },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: GAP },
   family: { minHeight: 150, padding: 16, borderRadius: 20, justifyContent: "flex-end" },
-  familyTitle: { fontFamily: fonts.serif, fontSize: 28, color: onImage.cream },
-  familyText: { fontFamily: fonts.sans, fontSize: 12, lineHeight: 17, color: onImage.creamMuted, marginTop: 4 },
+  familyTitle: { fontFamily: fonts.serif, fontSize: 28 },
+  familyText: { fontFamily: fonts.sans, fontSize: 12, lineHeight: 17, marginTop: 4 },
   familyArrow: { position: "absolute", top: 14, right: 14 },
 }));

@@ -15,7 +15,7 @@ import { Body, Display, Eyebrow } from "~/components/typography";
 import { imageUrl, pluralize } from "~/lib/format";
 import { useTabBarInset } from "~/lib/layout";
 import { moods, scentProfiles } from "~/shared";
-import { fonts, gutter, makeStyles, onImage, useColors } from "~/theme";
+import { fonts, gutter, makeStyles, onImage, scrims, useColors } from "~/theme";
 
 const GAP = 12;
 const toggle = (list: string[], value: string) => (list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
@@ -167,7 +167,7 @@ function MomentTiles({ selected, onToggle }: { selected: string[]; onToggle: (sl
             style={({ pressed }) => [styles.moment, { width: tile, height: tile * 1.25 }, on && styles.momentOn, pressed && { transform: [{ scale: 0.97 }] }]}
           >
             <Image source={imageUrl(mood.image)} style={styles.fill} contentFit="cover" transition={250} />
-            <LinearGradient colors={["rgba(20,19,18,0)", "rgba(20,19,18,0.7)"]} locations={[0.35, 1]} style={styles.fill} />
+            <LinearGradient colors={scrims.tile.colors} locations={scrims.tile.locations} style={styles.fill} />
             {on && (
               <View style={styles.momentCheck}>
                 <Feather name="check" size={16} color={onImage.night} />

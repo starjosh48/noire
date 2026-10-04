@@ -43,11 +43,25 @@ const dark: Palette = {
 
 export const palettes = { light, dark };
 
+/**
+ * Gradients drawn behind text on photography, as [alpha, position] stops of rgba(20,19,18,…).
+ * Each was measured against every image it covers (WCAG contrast of the text over the
+ * brightest 5% of pixels behind it): small text ≥ 6.2:1, large ≥ 5.2:1. Change with care.
+ */
+export const scrims = {
+  feed: { colors: ["rgba(20,19,18,0.8)", "rgba(20,19,18,0.62)", "rgba(20,19,18,0.15)", "rgba(20,19,18,0.2)", "rgba(20,19,18,0.74)", "rgba(20,19,18,0.92)"], locations: [0, 0.12, 0.2, 0.3, 0.5, 1] },
+  cover: { colors: ["rgba(20,19,18,0.6)", "rgba(20,19,18,0.2)", "rgba(20,19,18,0.3)", "rgba(20,19,18,0.74)", "rgba(20,19,18,0.92)"], locations: [0, 0.16, 0.3, 0.45, 1] },
+  banner: { colors: ["rgba(20,19,18,0.15)", "rgba(20,19,18,0.6)", "rgba(20,19,18,0.92)"], locations: [0, 0.5, 1] },
+  card: { colors: ["rgba(20,19,18,0)", "rgba(20,19,18,0.15)", "rgba(20,19,18,0.88)"], locations: [0, 0.3, 1] },
+  tile: { colors: ["rgba(20,19,18,0)", "rgba(20,19,18,0.12)", "rgba(20,19,18,0.86)"], locations: [0, 0.3, 1] },
+} as const;
+
 /** Fixed tones for type and controls laid over photography, in either theme. */
 export const onImage = {
   night: "#1a1918",
   cream: "#f7f3ed",
-  creamMuted: "rgba(247, 243, 237, 0.78)",
+  // 90%: measured to stay above WCAG AA on every photo it is used on (see scrims).
+  creamMuted: "rgba(247, 243, 237, 0.9)",
   scrim: "rgba(26, 25, 24, 0.38)",
 } as const;
 

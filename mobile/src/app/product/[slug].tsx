@@ -401,7 +401,7 @@ const useStyles = makeStyles((c) => ({
     borderRadius: 21,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(26,25,24,0.45)",
+    backgroundColor: "rgba(26,25,24,0.62)",
   },
   purchase: {
     position: "absolute",
