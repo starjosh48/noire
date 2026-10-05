@@ -290,21 +290,22 @@ tunnel to port 3100, or the test website below.
    - `--profile production` uses the live site, once this branch is published there.
    - iOS (TestFlight) needs an Apple Developer account.
 
-### Test website and test APK
+### Live website and APK
 
-- **Test website:** `https://mobile-app--shopnoire.netlify.app`.
-  - A Netlify **draft** deploy of this branch: the same Supabase project as the live site, plus
-    `/api/mobile` and live cart updates.
-  - The live site (`shopnoire.netlify.app`) is not changed by it.
-  - Netlify's packaging of the Next.js middleware fails on Windows paths, so the test website is
-    built in a Linux container (`node:22` in Docker) with
-    `netlify deploy --build --context deploy-preview --alias mobile-app`.
-- **Test APK:** `preview` builds on EAS (project `@j.o/noire`, app ID
-  `com.shopnoire.app`). Each build page on expo.dev has a download link and QR code.
-- **On the test website:**
-  - Paystack runs in test mode.
-  - Pay-on-delivery orders are real orders in the database, and they send real confirmation
-    emails.
+- **Live website:** `https://shopnoire.vercel.app` (Vercel, Production).
+  - Published from this branch on 5 October 2026: `/api/mobile` and live cart updates.
+  - The previous deployment, `dpl_G42jRgtqYP3vo6DZoTYzKEyK7hUj`, is the rollback point
+    (`vercel rollback`).
+  - `.vercelignore` excludes only the top-level `/mobile` folder.
+- **APK:** `preview` builds on EAS (project `@j.o/noire`, app ID `com.shopnoire.app`) use
+  the live website. Each build page on expo.dev has a download link and QR code.
+- **Netlify:** `mobile-app--shopnoire.netlify.app` is an earlier draft copy of this branch on
+  Netlify, using the same database. It's no longer used by the app.
+  - Netlify's packaging of the Next.js middleware fails on Windows paths, so that copy was built
+    in a Linux container.
+- **Payments and email:** Paystack runs in test mode on the live site.
+  - Pay-on-delivery orders are real orders.
+  - They send real confirmation emails.
 
 # Physical Device Testing
 
