@@ -9,5 +9,6 @@ node_modules
 .netlify
 *.tsbuildinfo
 
-# The Expo app is built separately (EAS), never by Vercel.
-mobile
+# The Expo app (top-level mobile/) is built separately (EAS), never by Vercel. Anchored with /
+# so it does not also exclude src/app/api/mobile or src/lib/mobile.
+/mobile
