@@ -71,6 +71,9 @@ export default function ShopScreen() {
           <QuickLink label="New arrivals" icon="star" onPress={() => router.push(collection({ sort: "newest" }))} />
           <QuickLink label="Bestsellers" icon="trending-up" onPress={() => router.push(collection({ sort: "bestselling" }))} />
         </View>
+        <View style={[styles.row, { marginTop: GAP }]}>
+          <QuickLink label="Filter & sort" icon="sliders" onPress={() => router.push(collection({ view: "grid" }))} />
+        </View>
       </Animated.View>
 
       <Section eyebrow="By mood" title="For every moment" />

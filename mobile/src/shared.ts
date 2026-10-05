@@ -10,12 +10,17 @@ export {
   families,
   familyLabel,
   familyLine,
+  genders,
   moodBySlug,
   moods,
+  priceRanges,
   scentProfiles,
+  sizes,
   sortOptions,
   type SortKey,
 } from "@/lib/catalog/taxonomy";
+// The website's /shop filters: the same parsing and URL format, so the app filters identically.
+export { activeFilterCount, emptyFilters, filtersToSearchParams, parseFilters, type CatalogFilters } from "@/lib/catalog/filters";
 export { calculateTotals, emptyCart } from "@/lib/cart/pricing";
 export { commerce, deliveryEstimate, siteConfig } from "@/lib/config";
 export { formatDate, formatPrice as formatPriceIntl, pluralize, productLabel, firstName } from "@/lib/format";

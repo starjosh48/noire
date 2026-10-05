@@ -1,12 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import type { ProductDetail, ProductSummary, SortKey } from "~/shared";
+import { filtersToSearchParams, type CatalogFilters, type ProductDetail, type ProductSummary } from "~/shared";
 import { apiFetch } from "./client";
-
-export type CatalogQuery = {
-  family?: string;
-  mood?: string;
-  sort?: SortKey;
-};
 
 export function useHome() {
   return useQuery({
@@ -15,12 +9,9 @@ export function useHome() {
   });
 }
 
-export function useProducts(query: CatalogQuery) {
-  const params = new URLSearchParams();
-  if (query.family) params.set("family", query.family);
-  if (query.mood) params.set("mood", query.mood);
-  if (query.sort && query.sort !== "featured") params.set("sort", query.sort);
-  const search = params.toString();
+/** The catalog with the website's /shop filters and sort (same query string). */
+export function useProducts(filters: CatalogFilters) {
+  const search = filtersToSearchParams(filters).toString();
 
   return useQuery({
     queryKey: ["catalog", "products", search],

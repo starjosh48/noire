@@ -21,19 +21,28 @@ type FeedProps = {
   overlay?: ReactNode;
   /** Space the floating tab bar covers at the bottom. */
   bottomInset?: number;
+  /** An optional closing page after the last fragrance (e.g. more of the store on Home). */
+  footer?: ReactNode;
+  /** Names the selection on each page, e.g. "Featured" → "Featured · 01/06". */
+  label?: string;
 };
 
-type Page = { kind: "cover" } | { kind: "product"; product: ProductSummary; index: number };
+type Page = { kind: "cover" } | { kind: "product"; product: ProductSummary; index: number } | { kind: "footer" };
+const pageKey = (page: Page) => (page.kind === "product" ? page.product.id : page.kind);
 
 /**
  * The lookbook: one fragrance per screen, swiped vertically like a magazine. Each page can add
  * the fragrance's default size straight to the cart, or open its full page.
  */
-export function ProductFeed({ products, cover, overlay, bottomInset = 0 }: FeedProps) {
+export function ProductFeed({ products, cover, overlay, bottomInset = 0, footer, label }: FeedProps) {
   const styles = useStyles();
   const [height, setHeight] = useState(0);
   const [active, setActive] = useState(0);
-  const pages: Page[] = [...(cover ? [{ kind: "cover" } as const] : []), ...products.map((product, index) => ({ kind: "product" as const, product, index }))];
+  const pages: Page[] = [
+    ...(cover ? [{ kind: "cover" } as const] : []),
+    ...products.map((product, index) => ({ kind: "product" as const, product, index })),
+    ...(footer ? [{ kind: "footer" } as const] : []),
+  ];
 
   // FlatList needs the same callback for its whole life.
   const [onViewable] = useState(() => ({ viewableItems }: { viewableItems: ViewToken<Page>[] }) => {
@@ -46,7 +55,7 @@ export function ProductFeed({ products, cover, overlay, bottomInset = 0 }: FeedP
       {height > 0 && (
         <FlatList
           data={pages}
-          keyExtractor={(page) => (page.kind === "cover" ? "cover" : page.product.id)}
+          keyExtractor={pageKey}
           pagingEnabled
           showsVerticalScrollIndicator={false}
           decelerationRate="fast"
@@ -60,11 +69,14 @@ export function ProductFeed({ products, cover, overlay, bottomInset = 0 }: FeedP
             <View style={{ height }}>
               {item.kind === "cover" ? (
                 cover
+              ) : item.kind === "footer" ? (
+                footer
               ) : (
                 <FeedPage
                   product={item.product}
                   position={item.index}
                   total={products.length}
+                  label={label}
                   active={index === active}
                   bottomInset={bottomInset}
                 />
@@ -77,7 +89,7 @@ export function ProductFeed({ products, cover, overlay, bottomInset = 0 }: FeedP
       {products.length > 1 && (
         <View style={[styles.progress, { bottom: bottomInset + 32 }]} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           {pages.map((page, i) => (
-            <View key={page.kind === "cover" ? "cover" : page.product.id} style={[styles.tick, i === active && styles.tickActive]} />
+            <View key={pageKey(page)} style={[styles.tick, i === active && styles.tickActive]} />
           ))}
         </View>
       )}
@@ -95,12 +107,14 @@ function FeedPage({
   product,
   position,
   total,
+  label,
   active,
   bottomInset,
 }: {
   product: ProductSummary;
   position: number;
   total: number;
+  label?: string;
   active: boolean;
   bottomInset: number;
 }) {
@@ -156,7 +170,8 @@ function FeedPage({
 
       <Animated.View style={[styles.copy, { paddingBottom: bottomInset + 28 }, textStyle]} pointerEvents="box-none">
         <Text style={styles.meta}>
-          {productLabel(product.number)} · {String(position + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}
+          {label ? `${label} · ` : `${productLabel(product.number)} · `}
+          {String(position + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}
         </Text>
         <Text style={styles.name} accessibilityRole="header">
           {product.name}

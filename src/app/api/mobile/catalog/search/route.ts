@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { searchProducts } from "@/lib/catalog/queries";
+import { CATALOG_CACHE_HEADERS } from "@/lib/mobile/cache";
 
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get("q") ?? "";
@@ -8,7 +9,7 @@ export async function GET(request: NextRequest) {
     const results = await searchProducts(q, limit);
     return NextResponse.json(
       { results },
-      { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } },
+      { headers: CATALOG_CACHE_HEADERS },
     );
   } catch {
     return NextResponse.json({ results: [], error: "Search is unavailable right now." }, { status: 503 });

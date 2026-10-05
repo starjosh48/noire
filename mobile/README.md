@@ -17,10 +17,27 @@ The website and the app share:
 
 What the app has:
 
-- Home, Shop (filters, sort, search), Discover (scent finder), product pages
-- A cart that stays in sync with the website, live
-- Checkout with Paystack or pay on delivery
-- Account: profile, order history, order details, sign out
+- **Home**, a lookbook:
+  - a full-screen cover;
+  - the featured fragrances, one per screen (swipe up), each with a one-tap "Add";
+  - a closing page with Bestsellers, Explore by family, the scent finder, the NOIRÉ philosophy
+    and "Shop all".
+- **Shop:**
+  - image-led ways in: all twelve, new arrivals, bestsellers, moods, families, and "Filter &
+    sort";
+  - each opens a collection as a lookbook or a grid;
+  - the website's filters (family, mood, size, price, gender, in stock) and its sort options;
+  - search by name, note or mood.
+- **Discover:** the website's scent finder as a three-step guided flow ending in your matches.
+- **Product pages:**
+  - a full-bleed gallery and a details sheet that rises over it;
+  - sizes, quantity, Add to cart and Buy now;
+  - notes, delivery and availability.
+- **Cart:** stays in sync with the website, live. Quantities can be changed, and lines removed
+  by swiping or tapping.
+- **Checkout** with Paystack or pay on delivery, then an order confirmation.
+- **Account:** profile, order history, order details, sign out.
+- **Light and dark:** follows the phone's setting, using the website's two palettes.
 
 ## Architecture
 
@@ -48,16 +65,19 @@ What the app has:
 
   ```
   mobile/src/
-    app/          screens (Expo Router): (tabs)/ home, shop, discover, cart, account;
-                  product/[slug], search, checkout, order/[orderNumber], orders,
-                  sign-in, auth/callback, payment-return
+    app/          screens (Expo Router): (tabs)/ index (Home), shop, discover, cart, account;
+                  collection (lookbook or grid of a selection), product/[slug], search,
+                  checkout, order/[orderNumber], orders, sign-in, auth/callback, payment-return
     api/          typed API client and data hooks (catalog, account, checkout)
     auth/         Supabase session, Google and email sign-in
     cart/         server cart, predictions, Realtime sync
-    components/   UI (product card, steppers, sheets, skeletons, toasts)
-    lib/          Supabase client, query client, formatting
-    shared.ts     imports from the website
-    theme.ts      NOIRÉ design tokens (mirrors the website's globals.css)
+    components/   UI (lookbook feed, product card, filter and select sheets, steppers,
+                  skeletons, toasts)
+    lib/          Supabase client, query client, formatting, layout
+    shared.ts     imports from the website (types, taxonomy, filters, pricing, checkout schema)
+    theme.ts      NOIRÉ design tokens, light and dark (mirrors the website's globals.css),
+                  and the measured scrims for text on photography
+  scripts/        check-contrast.mjs: WCAG contrast of text over every photo it sits on
   ```
 
 ## Mobile setup
@@ -110,6 +130,10 @@ Everything is additive; nothing existing changes.
 1. **Apply the cart sync migration** (`supabase/migrations/20261003000100_cart_realtime.sql`).
    - Local: `npx supabase migration up`.
    - Hosted: `npx supabase db push`, or paste the file into the SQL Editor.
+   - **Status: applied to the hosted project on 4 October 2026.** It was run through the
+     Supabase management API (`supabase db query --linked`), not `db push`, so it is not in
+     the remote migration history. If you later use `supabase db push`, mark it as applied
+     first (`supabase migration repair --status applied 20261003000100`).
 
    The migration:
    - lets a signed-in customer read **only their own** cart row (writes stay server-only),
@@ -120,6 +144,8 @@ Everything is additive; nothing existing changes.
 2. **Authentication → URL Configuration → Redirect URLs**: add the app's return links.
    - `noire://**` (installed app)
    - `exp://**` (Expo Go, development only; remove it in production if you prefer)
+
+   **Status: both added to the hosted project.**
 
    For local Supabase these are already in `supabase/config.toml`.
 3. **Email provider**: nothing to change. The app sends the same passwordless link as the
@@ -235,6 +261,19 @@ npx expo start                     # scan the QR code with Expo Go (Android) or 
 The app finds the website and Supabase on the computer that runs `expo start`. If it can't
 reach them, allow Node through the Windows/macOS firewall for private networks.
 
+If the phone can't reach the computer at all, `npx expo start --tunnel` is the next thing to
+try. Some routers stop devices on the same Wi-Fi from talking to each other, and a tunnel works
+around that. The tunnel uses ngrok and needs you signed in to Expo (`npx expo login`) and in
+Expo Go.
+
+If ngrok itself is down, use a Cloudflare tunnel instead:
+1. Run `cloudflared tunnel --url http://localhost:8081`.
+2. Start Expo with `EXPO_PACKAGER_PROXY_URL=<the https tunnel URL> npx expo start`.
+3. Open `exp://<tunnel host>` in Expo Go.
+
+The app also needs a public address for the website (`EXPO_PUBLIC_API_URL`): either a second
+tunnel to port 3100, or the test website below.
+
 ## Running on a physical phone
 
 1. Install **Expo Go**. Connect the phone to the same Wi-Fi as the computer.
@@ -245,9 +284,27 @@ reach them, allow Node through the Windows/macOS firewall for private networks.
    project. Make sure the migration and the redirect URLs from *Supabase configuration* are in
    place on that project.
 4. `cd mobile && npx expo start`, then scan the QR code.
-5. For a standalone build (TestFlight / Play Store internal testing), use EAS:
-   `npx eas-cli@latest build --profile preview`. This needs an Expo account, and an Apple
-   developer account for iOS. Set `EXPO_PUBLIC_API_URL` to the live website for these builds.
+5. For an installable build, use EAS with the profiles in `eas.json`:
+   - `npx eas-cli@latest build --platform android --profile preview` builds an installable
+     **APK** that uses the test website.
+   - `--profile production` uses the live site, once this branch is published there.
+   - iOS (TestFlight) needs an Apple Developer account.
+
+### Test website and test APK
+
+- **Test website:** `https://mobile-app--shopnoire.netlify.app`.
+  - A Netlify **draft** deploy of this branch: the same Supabase project as the live site, plus
+    `/api/mobile` and live cart updates.
+  - The live site (`shopnoire.netlify.app`) is not changed by it.
+  - Netlify's packaging of the Next.js middleware fails on Windows paths, so the test website is
+    built in a Linux container (`node:22` in Docker) with
+    `netlify deploy --build --context deploy-preview --alias mobile-app`.
+- **Test APK:** `preview` builds on EAS (project `@j.o/noire`, app ID
+  `com.shopnoire.app`). Each build page on expo.dev has a download link and QR code.
+- **On the test website:**
+  - Paystack runs in test mode.
+  - Pay-on-delivery orders are real orders in the database, and they send real confirmation
+    emails.
 
 # Physical Device Testing
 
@@ -256,13 +313,13 @@ Each is marked accordingly until someone performs it.
 
 | # | Test | Expected | Result |
 | --- | --- | --- | --- |
-| 1 | Install/run the app (Expo Go, `npx expo start`) | The app opens on Home with real products | **Requires manual verification** |
+| 1 | Install the test APK (or run in Expo Go) | The app opens on Home: the cover, then the featured fragrances | **Requires manual verification** |
 | 2 | Log into the app with the same Google account used on the website | Account tab shows the same name and email; same orders as the website | **Requires manual verification** |
 | 3 | On the website, signed in, add a fragrance (pick a size, quantity 1) | Added to the website cart | **Requires manual verification** |
 | 4 | Open the app | — | **Requires manual verification** |
 | 5 | Confirm the same item is in the app's cart | Same fragrance, size, quantity 1, price; Cart tab badge shows the count | **Requires manual verification** |
 | 6 | In the app, change the quantity to 2 | Updates immediately | **Requires manual verification** |
-| 7 | Confirm the website shows quantity 2 | Updates within a second or two with the page open (Realtime), or on returning to the tab | **Requires manual verification** |
+| 7 | Confirm the website shows quantity 2 (use the test website, which has live updates) | Updates within a second or two with the page open (Realtime), or on returning to the tab | **Requires manual verification** |
 | 8 | Remove the item on the website | Removed | **Requires manual verification** |
 | 9 | Confirm the app's cart updates | The item disappears without a manual refresh | **Requires manual verification** |
 | 10 | Force-quit and restart the app | — | **Requires manual verification** |
@@ -286,7 +343,7 @@ Worth checking at the same time:
 
 **Shared-backend tests**, from the repository root against the **local** stack (Supabase and
 the website on port 3100): `node --test "tests/mobile-api/*.test.mjs"`. The helpers refuse to
-run against anything but a local Supabase. 34 tests:
+run against anything but a local Supabase. 34 tests, all passing; last run at commit `ab4ac05`, and the backend (`src/`, `supabase/`, `tests/`) has not changed since:
 - **Sync (`sync.test.mjs`):**
   - the app and the website resolve to the same Supabase user;
   - mobile → website and website → mobile;
@@ -307,9 +364,18 @@ run against anything but a local Supabase. 34 tests:
 - **Catalog (`catalog.test.mjs`):** home, filters and sort, product detail, 404, search by name
   and note, discovery.
 
+**Contrast**, `cd mobile && npm run check:contrast`:
+- WCAG contrast of the text over every photo it sits on (84 placements, at phone size).
+- It uses the scrims from `src/theme.ts` and the real images in `../public`. The brightest 5%
+  of pixels behind each piece of text set the worst case.
+- Result: small text ≥ 6.2:1 (needs 4.5:1), large text ≥ 5.2:1 (needs 3:1).
+- The family tiles (text on solid colour) and the app's text colours in light and dark mode
+  were checked separately, and all pass. The deep champagne used for "Only N left" is used on
+  ivory only (4.7:1).
+
 **Checks**, also run and passing:
 - app: `npx tsc --noEmit`, `npx expo lint`, `npx expo-doctor`, `npx expo export` (Android and
-  iOS bundles);
+  iOS bundles), and an EAS Android build;
 - website: `npx tsc --noEmit`, `npx eslint`, `npm run build`.
 
 ### Manual
@@ -326,9 +392,12 @@ See **Physical Device Testing** above. These are not yet performed.
 - **Native Google account picker** isn't used yet: sign-in goes through a secure in-app browser,
   which works in Expo Go. A development build can add the native picker later (see *Google
   OAuth configuration*).
-- **App icon and splash** are Expo's placeholders until store assets are made.
 - **Offline**: browsing what was already loaded works; changes need a connection and are never
   faked. There is no offline cart by design.
 - **Wishlist** exists in the API (shared with the website) but has no app screen yet.
 - **Pagination**: the catalog is twelve fragrances, so lists load whole. The API returns the
   website's query results unpaginated.
+- **iPhone**: there is no installable iOS build yet. It needs an Apple Developer account
+  (TestFlight). iPhones can use Expo Go for development.
+- **Live site**: `shopnoire.netlify.app` doesn't serve `/api/mobile` or live cart updates
+  until this branch is published there. Production app builds should wait for that.
